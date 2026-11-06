@@ -67,3 +67,4 @@ export function decodeGreetingData(encodedStr: string): ShareableGreetingData | 
     return null;
   }
 }
+

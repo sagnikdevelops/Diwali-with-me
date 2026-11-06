@@ -144,3 +144,4 @@ export function SweetChoiceModal({ isOpen, onChoiceSelected, onSkip }: SweetChoi
     </div>
   );
 }
+

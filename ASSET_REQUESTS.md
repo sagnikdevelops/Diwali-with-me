@@ -23,3 +23,4 @@ If you wish to provide photographic or high-resolution custom illustrated assets
 When placing files into the corresponding paths in `/public/`:
 - Keep file sizes under 250 KB per image using WebP or compressed SVG.
 - Ensure transparent alpha channels (`.webp` or `.png`) around borders so they blend seamlessly with the deep navy background.
+

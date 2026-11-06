@@ -239,3 +239,4 @@ export function DiyaLightModal({ isOpen, onClose, onDiyaLit }: DiyaLightModalPro
     </div>
   );
 }
+

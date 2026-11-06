@@ -164,3 +164,4 @@ export function CinematicWelcome({ onEnter, onSkip }: CinematicWelcomeProps) {
     </div>
   );
 }
+

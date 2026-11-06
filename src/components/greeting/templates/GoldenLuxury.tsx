@@ -94,3 +94,4 @@ export function GoldenLuxury({ recipient, sender, message, blessing }: CardProps
     </div>
   );
 }
+

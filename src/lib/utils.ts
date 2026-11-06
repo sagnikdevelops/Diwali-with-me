@@ -28,3 +28,4 @@ export function sanitizeText(input: string, maxLength = 150): string {
     .trim()
     .slice(0, maxLength);
 }
+

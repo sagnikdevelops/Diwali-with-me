@@ -75,3 +75,4 @@ export function MinimalElegant({ recipient, sender, message, blessing }: CardPro
     </div>
   );
 }
+

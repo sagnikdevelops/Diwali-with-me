@@ -78,3 +78,4 @@ export function ColourfulFamily({ recipient, sender, message, blessing }: CardPr
     </div>
   );
 }
+

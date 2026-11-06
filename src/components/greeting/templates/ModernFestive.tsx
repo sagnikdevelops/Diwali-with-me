@@ -71,3 +71,4 @@ export function ModernFestive({ recipient, sender, message, blessing }: CardProp
     </div>
   );
 }
+

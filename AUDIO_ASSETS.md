@@ -44,3 +44,4 @@ The site includes native Web Audio API oscillators that fire immediately. If you
 1. Download royalty-free audio tracks meeting the descriptions above.
 2. Place the audio files in the folder: `public/audio/`
 3. If files are not present, the website detects this gracefully, displays a friendly configuration notice in the audio drawer, and continues playing the native Web Audio sound effects seamlessly.
+

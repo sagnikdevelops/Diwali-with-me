@@ -29,3 +29,4 @@ No paid plans, trial memberships requiring credit cards, premium UI packages, or
 - **If Firebase credentials are not provided:** The Wall of Light and Sky Lantern Wish Wall store submissions in the browser's `localStorage` and provide instant community sample entries, guaranteeing a rich interactive experience without external cloud dependencies.
 - **If user device prefers reduced motion:** Animations switch to soft static illumination, and interactive fireworks fire single gentle bursts rather than rapid cascades.
 - **If user has no audio output or denies permission:** The website operates seamlessly without audio, with floating visual indicators keeping the user in full control.
+

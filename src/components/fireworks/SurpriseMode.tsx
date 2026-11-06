@@ -150,3 +150,4 @@ export function SurpriseMode({ isOpen, onClose }: SurpriseModeProps) {
     </div>
   );
 }
+

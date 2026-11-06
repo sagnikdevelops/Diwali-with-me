@@ -119,3 +119,4 @@ To eliminate the need for paid cloud databases while ensuring 100% cross-device 
 - XSS prevention is guaranteed by React's native string interpolation (no `dangerouslySetInnerHTML`).
 - Visitors can view, hide, or clear their submissions at any time from their local device.
 - Uploaded photos never touch a network server — all canvas compositing is computed locally via HTML5 `<canvas>`.
+

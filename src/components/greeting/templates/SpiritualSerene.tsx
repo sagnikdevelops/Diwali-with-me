@@ -72,3 +72,4 @@ export function SpiritualSerene({ recipient, sender, message, blessing }: CardPr
     </div>
   );
 }
+

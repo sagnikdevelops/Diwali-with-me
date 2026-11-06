@@ -70,3 +70,4 @@ The design system is crafted to evoke an authentic, cinematic Indian festive cel
    - When `prefers-reduced-motion: reduce` is detected, all auto-rotations, particle physics, and rapid fireworks loops are paused or replaced with graceful static glow states.
 3. **Performance First**:
    - Canvas-based animations (fireworks, rangoli rendering, particle field) are throttled via `requestAnimationFrame` and automatically paused when the document is hidden (`document.hidden`).
+

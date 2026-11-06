@@ -258,3 +258,4 @@ export function SkyLanterns({ onLanternReleased }: SkyLanternsProps) {
     </div>
   );
 }
+

@@ -10,8 +10,8 @@ The **Diwali Greeting Website** is a competition-grade interactive digital sanct
 
 ### 2.1 Cinematic Welcome & Sweet Choice Opener
 - **Visuals**: A gradual twilight reveal featuring animated mandala rings, glowing golden particles, and a lit ceremonial clay Diya.
-- **Micro-Interaction**: "A Diwali classic: Kaju Katli or Soan Papdi?" inviting users to choose their favorite sweet.
-- **Behavior**: Provides distinct humorous compliments ("A Royal Connoisseur!" for Kaju Katli, "The Legendary Ambassador!" for Soan Papdi), saves the choice in session storage, and includes an accessible "Skip" button that prevents forced waiting.
+- **Micro-Interaction**: "A Diwali classic: Kaju Katli or Soan Papdi?" inviting users to choose their favorite festive sweet.
+- **Behavior**: Provides distinct humorous compliments ("A Royal Connoisseur!" for Kaju Katli, "The Legendary Ambassador!" for Soan Papdi). Per design requirement, this preference is **never stored in localStorage or persisted across visits**; it is asked every time the user visits the website, and visitors can easily switch their choice via a "(Change Sweet)" button anytime during their visit. Includes an accessible "Skip" button that prevents forced waiting.
 
 ### 2.2 Live Diwali Countdown
 - **Configuration**: Configured for Kartik Amavasya (Deepavali) targeting `2026-11-08T18:00:00+05:30` in the `Asia/Kolkata` (IST) timezone.
@@ -74,3 +74,4 @@ Features 6 visually distinct templates designed with authentic festive aesthetic
 - **Synthesizer Default (`src/lib/audio-synth.ts`)**: Built with the W3C Web Audio API. Synthesizes harmonic sine bells (784Hz, 987Hz, 1174Hz, 1568Hz) for Diyas, filtered noise bursts for fireworks, and triangle waves for shimmers.
 - **Ambient Music Player (`src/components/audio/AudioBar.tsx`)**: Fixed floating bar with Play/Pause, Volume, Mute, Track selector, and SFX toggle.
 - **Policy Compliance**: Autoplay is strictly disabled prior to user gesture. Audio errors are caught gracefully with helpful setup prompts.
+

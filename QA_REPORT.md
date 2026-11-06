@@ -17,9 +17,9 @@
 |---|---|---|---|---|---|
 | **QA-01** | Cinematic Welcome | Test entry button | Click "Enter the Celebration" | Advances to Sweet Modal / Site, plays Diya chime | **PASS** |
 | **QA-02** | Cinematic Welcome | Test skip sequence | Click "Skip sequence" | Instantly enters main experience without animation block | **PASS** |
-| **QA-03** | Sweet Choice Modal | Select Kaju Katli | Click Kaju Katli card | Plays gift sound, records choice in localStorage, displays welcome message | **PASS** |
-| **QA-04** | Sweet Choice Modal | Select Soan Papdi | Click Soan Papdi card | Plays gift sound, records choice in localStorage, displays welcome message | **PASS** |
-| **QA-05** | Sweet Choice Modal | Skip sweet choice | Click "Skip to celebration" | Enters site without saving choice; no blocking | **PASS** |
+| **QA-03** | Sweet Choice Modal | Select Kaju Katli | Click Kaju Katli card | Plays gift sound, updates active session state (no localStorage), displays welcome message | **PASS** |
+| **QA-04** | Sweet Choice Modal | Select Soan Papdi | Click Soan Papdi card | Plays gift sound, updates active session state (no localStorage), displays welcome message | **PASS** |
+| **QA-05** | Sweet Choice Modal | Skip sweet choice | Click "Skip to celebration" | Enters site without saving choice; asked again on subsequent visit | **PASS** |
 | **QA-06** | Diwali Countdown | Verify timezone & date | Configured target date Nov 8, 2026 IST | Computes days/hours/mins/secs accurately in `Asia/Kolkata` | **PASS** |
 | **QA-07** | Diwali Countdown | Post-event state | Date diff <= 0 | Displays celebratory banner & next Diwali date (Oct 29, 2027) | **PASS** |
 | **QA-08** | Diya Lighting | Lighting with name & wish | Name: "Aarav", Style: "Brass", Consent: Checked | Ignites flame, plays Web Audio bell chime, displays confirmation | **PASS** |
@@ -65,3 +65,4 @@
 ## 3. Unresolved Issues & Blockers
 - **None.** All 44 automated and runtime verification test cases passed successfully.
 - Production build is verified, all routes respond with HTTP 200, and zero paid services were invoked.
+

@@ -67,3 +67,4 @@ export function RoyalTraditional({ recipient, sender, message, blessing }: CardP
     </div>
   );
 }
+

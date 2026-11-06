@@ -39,13 +39,15 @@ export default function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    // Check if user has already visited in this session
+    // Explicitly do not store sweet preference; ask it on every visit.
+    // Clean up any previously cached sweet preference from localStorage.
     try {
+      localStorage.removeItem("diwali_sweet_choice");
+      sessionStorage.removeItem("diwali_sweet_choice");
       const visited = sessionStorage.getItem("diwali_visited");
-      const sweet = localStorage.getItem("diwali_sweet_choice");
-      if (sweet) setSweetChoice(sweet);
       if (visited === "true") {
         setShowIntro(false);
+        setShowSweetModal(true);
       }
     } catch {
       // Storage unavailable
@@ -55,24 +57,19 @@ export default function Home() {
   const handleEnterIntro = () => {
     setShowIntro(false);
     sessionStorage.setItem("diwali_visited", "true");
-    if (!sweetChoice) {
-      setShowSweetModal(true);
-    }
+    setShowSweetModal(true);
   };
 
   const handleSkipIntro = () => {
     setShowIntro(false);
     sessionStorage.setItem("diwali_visited", "true");
+    setShowSweetModal(true);
   };
 
   const handleSweetSelected = (sweet: "kaju-katli" | "soan-papdi" | "surprise") => {
     setSweetChoice(sweet);
     setShowSweetModal(false);
-    try {
-      localStorage.setItem("diwali_sweet_choice", sweet);
-    } catch {
-      // Ignore
-    }
+    // Kept strictly in component memory for this visit; never persisted to localStorage
   };
 
   const handleSkipSweet = () => {
@@ -240,7 +237,7 @@ export default function Home() {
 
       {/* Sweet choice welcome pill if chosen */}
       {sweetChoice && (
-        <div className="bg-diwali-purple/30 border-b border-diwali-gold/20 py-1.5 px-4 text-center text-xs text-diwali-goldLight flex items-center justify-center gap-2">
+        <div className="bg-diwali-purple/30 border-b border-diwali-gold/20 py-1.5 px-4 text-center text-xs text-diwali-goldLight flex flex-wrap items-center justify-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-diwali-amber" />
           <span>
             {sweetChoice === "kaju-katli"
@@ -249,6 +246,12 @@ export default function Home() {
               ? "Welcome, Legendary Soan Papdi Ambassador! Your festival is indestructible."
               : "Welcome, Sweet Festive Lover! May all sweets bring you pure joy."}
           </span>
+          <button
+            onClick={() => setShowSweetModal(true)}
+            className="text-[11px] underline text-diwali-ivory/80 hover:text-white transition-colors cursor-pointer ml-1"
+          >
+            (Change Sweet)
+          </button>
         </div>
       )}
 
@@ -408,3 +411,4 @@ export default function Home() {
     </div>
   );
 }
+
