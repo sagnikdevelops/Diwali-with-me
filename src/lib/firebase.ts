@@ -6,7 +6,6 @@ import {
   setDoc,
   getDocs,
   query,
-  where,
   orderBy,
   limit as firestoreLimit,
   onSnapshot,
@@ -15,13 +14,18 @@ import {
 import { LitDiyaData } from "@/components/diya/DiyaLightModal";
 import { SkyLanternData } from "@/components/lanterns/SkyLanterns";
 
+function cleanEnv(val?: string): string {
+  if (!val) return "";
+  return val.trim().replace(/^["']|["'],?$/g, "").replace(/,$/, "").trim();
+}
+
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: cleanEnv(process.env.NEXT_PUBLIC_FIREBASE_API_KEY),
+  authDomain: cleanEnv(process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN),
+  projectId: cleanEnv(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID),
+  storageBucket: cleanEnv(process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET),
+  messagingSenderId: cleanEnv(process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID),
+  appId: cleanEnv(process.env.NEXT_PUBLIC_FIREBASE_APP_ID),
 };
 
 /**
@@ -68,30 +72,33 @@ export async function fetchRemotePublicDiyas(maxItems = 100): Promise<LitDiyaDat
 
   try {
     const diyasRef = collection(db, "diyas");
-    const q = query(
-      diyasRef,
-      where("isPublic", "==", true),
-      orderBy("createdAt", "desc"),
-      firestoreLimit(maxItems)
-    );
+    // Single-field orderBy without compound where prevents index requirement
+    const q = query(diyasRef, orderBy("createdAt", "desc"), firestoreLimit(maxItems));
     const snapshot = await getDocs(q);
 
     const list: LitDiyaData[] = [];
     snapshot.forEach((docSnap) => {
       const data = docSnap.data();
-      list.push({
-        id: docSnap.id,
-        name: data.name || "Anonymous Devotee",
-        message: data.message || "",
-        style: data.style || "brass",
-        isPublic: Boolean(data.isPublic),
-        createdAt: Number(data.createdAt) || Date.now(),
-      });
+      if (data.isPublic !== false) {
+        list.push({
+          id: docSnap.id,
+          name: data.name || "Anonymous Devotee",
+          message: data.message || "",
+          style: data.style || "brass",
+          isPublic: true,
+          createdAt: Number(data.createdAt) || Date.now(),
+        });
+      }
     });
 
     return list;
-  } catch (err) {
-    console.warn("Firebase fetch diyas error:", err);
+  } catch (err: unknown) {
+    const error = err as { code?: string; message?: string };
+    if (error?.code === "permission-denied") {
+      console.warn("Firebase Firestore permission denied: Please update security rules in Firebase Console.");
+    } else {
+      console.warn("Firebase fetch diyas error:", error?.message || err);
+    }
     return [];
   }
 }
@@ -108,14 +115,19 @@ export async function insertRemoteDiya(diya: LitDiyaData): Promise<boolean> {
     await setDoc(diyaDoc, {
       id: diya.id,
       name: diya.name,
-      message: diya.message,
+      message: diya.message || "",
       style: diya.style,
       isPublic: diya.isPublic,
       createdAt: diya.createdAt,
     });
     return true;
-  } catch (err) {
-    console.warn("Firebase insert diya error:", err);
+  } catch (err: unknown) {
+    const error = err as { code?: string; message?: string };
+    if (error?.code === "permission-denied") {
+      console.error("Firebase Firestore write blocked: Update Firestore Rules to allow read, write: if true;");
+    } else {
+      console.warn("Firebase insert diya error:", error?.message || err);
+    }
     return false;
   }
 }
@@ -129,12 +141,7 @@ export function subscribeToRemoteDiyas(onUpdate: (diya: LitDiyaData) => void): (
 
   try {
     const diyasRef = collection(db, "diyas");
-    const q = query(
-      diyasRef,
-      where("isPublic", "==", true),
-      orderBy("createdAt", "desc"),
-      firestoreLimit(50)
-    );
+    const q = query(diyasRef, orderBy("createdAt", "desc"), firestoreLimit(50));
 
     const unsubscribe = onSnapshot(
       q,
@@ -142,19 +149,25 @@ export function subscribeToRemoteDiyas(onUpdate: (diya: LitDiyaData) => void): (
         snapshot.docChanges().forEach((change) => {
           if (change.type === "added") {
             const data = change.doc.data();
-            onUpdate({
-              id: change.doc.id,
-              name: data.name || "Anonymous Devotee",
-              message: data.message || "",
-              style: data.style || "brass",
-              isPublic: true,
-              createdAt: Number(data.createdAt) || Date.now(),
-            });
+            if (data.isPublic !== false) {
+              onUpdate({
+                id: change.doc.id,
+                name: data.name || "Anonymous Devotee",
+                message: data.message || "",
+                style: data.style || "brass",
+                isPublic: true,
+                createdAt: Number(data.createdAt) || Date.now(),
+              });
+            }
           }
         });
       },
       (err) => {
-        console.warn("Firebase realtime diyas snapshot error:", err);
+        if (err.code === "permission-denied") {
+          console.warn("Firebase realtime diyas blocked: Missing or insufficient permissions in Firestore rules.");
+        } else {
+          console.warn("Firebase realtime diyas snapshot error:", err);
+        }
       }
     );
 
@@ -178,30 +191,32 @@ export async function fetchRemotePublicLanterns(maxItems = 100): Promise<SkyLant
 
   try {
     const lanternsRef = collection(db, "lanterns");
-    const q = query(
-      lanternsRef,
-      where("isPublic", "==", true),
-      orderBy("createdAt", "desc"),
-      firestoreLimit(maxItems)
-    );
+    const q = query(lanternsRef, orderBy("createdAt", "desc"), firestoreLimit(maxItems));
     const snapshot = await getDocs(q);
 
     const list: SkyLanternData[] = [];
     snapshot.forEach((docSnap) => {
       const data = docSnap.data();
-      list.push({
-        id: docSnap.id,
-        name: data.name || "Anonymous Soul",
-        wish: data.wish || "",
-        color: data.color || "amber",
-        isPublic: Boolean(data.isPublic),
-        createdAt: Number(data.createdAt) || Date.now(),
-      });
+      if (data.isPublic !== false) {
+        list.push({
+          id: docSnap.id,
+          name: data.name || "Anonymous Soul",
+          wish: data.wish || "",
+          color: data.color || "amber",
+          isPublic: true,
+          createdAt: Number(data.createdAt) || Date.now(),
+        });
+      }
     });
 
     return list;
-  } catch (err) {
-    console.warn("Firebase fetch lanterns error:", err);
+  } catch (err: unknown) {
+    const error = err as { code?: string; message?: string };
+    if (error?.code === "permission-denied") {
+      console.warn("Firebase Firestore permission denied: Please update security rules in Firebase Console.");
+    } else {
+      console.warn("Firebase fetch lanterns error:", error?.message || err);
+    }
     return [];
   }
 }
@@ -218,14 +233,19 @@ export async function insertRemoteLantern(lantern: SkyLanternData): Promise<bool
     await setDoc(lanternDoc, {
       id: lantern.id,
       name: lantern.name,
-      wish: lantern.wish,
+      wish: lantern.wish || "",
       color: lantern.color,
       isPublic: lantern.isPublic,
       createdAt: lantern.createdAt,
     });
     return true;
-  } catch (err) {
-    console.warn("Firebase insert lantern error:", err);
+  } catch (err: unknown) {
+    const error = err as { code?: string; message?: string };
+    if (error?.code === "permission-denied") {
+      console.error("Firebase Firestore write blocked: Update Firestore Rules to allow read, write: if true;");
+    } else {
+      console.warn("Firebase insert lantern error:", error?.message || err);
+    }
     return false;
   }
 }
@@ -239,12 +259,7 @@ export function subscribeToRemoteLanterns(onUpdate: (lantern: SkyLanternData) =>
 
   try {
     const lanternsRef = collection(db, "lanterns");
-    const q = query(
-      lanternsRef,
-      where("isPublic", "==", true),
-      orderBy("createdAt", "desc"),
-      firestoreLimit(50)
-    );
+    const q = query(lanternsRef, orderBy("createdAt", "desc"), firestoreLimit(50));
 
     const unsubscribe = onSnapshot(
       q,
@@ -252,19 +267,25 @@ export function subscribeToRemoteLanterns(onUpdate: (lantern: SkyLanternData) =>
         snapshot.docChanges().forEach((change) => {
           if (change.type === "added") {
             const data = change.doc.data();
-            onUpdate({
-              id: change.doc.id,
-              name: data.name || "Anonymous Soul",
-              wish: data.wish || "",
-              color: data.color || "amber",
-              isPublic: true,
-              createdAt: Number(data.createdAt) || Date.now(),
-            });
+            if (data.isPublic !== false) {
+              onUpdate({
+                id: change.doc.id,
+                name: data.name || "Anonymous Soul",
+                wish: data.wish || "",
+                color: data.color || "amber",
+                isPublic: true,
+                createdAt: Number(data.createdAt) || Date.now(),
+              });
+            }
           }
         });
       },
       (err) => {
-        console.warn("Firebase realtime lanterns snapshot error:", err);
+        if (err.code === "permission-denied") {
+          console.warn("Firebase realtime lanterns blocked: Missing or insufficient permissions in Firestore rules.");
+        } else {
+          console.warn("Firebase realtime lanterns snapshot error:", err);
+        }
       }
     );
 
@@ -274,4 +295,3 @@ export function subscribeToRemoteLanterns(onUpdate: (lantern: SkyLanternData) =>
     return null;
   }
 }
-
