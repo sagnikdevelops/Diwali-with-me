@@ -1,6 +1,6 @@
 # Shubh Deepavali — Diwali Greetings & Festive Sanctuary 🪔✨
 
-> An immersive, culturally rich Indian Diwali festival experience built for the Website Building Competition under a strict **₹0 Budget**.
+> An immersive, culturally rich Indian Diwali festival experience built for the Website Building Competition
 
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary%20%2F%20All%20Rights%20Reserved-red.svg)](LICENSE)
 [![Hackathon Submission](https://img.shields.io/badge/Hackathon-Original%20Submission-gold.svg)](NOTICE)
@@ -8,7 +8,7 @@
 
 > [!IMPORTANT]
 > **Copyright & Competition Originality Notice**
-> This repository is the original intellectual property of [Sagnik Dutta](https://www.linkedin.com/in/sagnikduttahere/) created for the official Website Building Competition / Hackathon. All rights reserved. 
+> This repository is the original intellectual property of [Sagnik Dutta](https://www.linkedin.com/in/sagnikduttahere/) created for the official Website Building Competition. All rights reserved. 
 > Hackathon judges and evaluators have full permission to review, compile, and test the project. However, **copying, redistributing, forking for plagiarism, or re-submitting this project to any competition or hackathon is strictly prohibited** under the [Proprietary & Hackathon Submission License](LICENSE). Cryptographic Git commit timestamps establish prior art and proof of original authorship.
 
 ---
