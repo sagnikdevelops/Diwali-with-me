@@ -1,137 +1,116 @@
-# Shubh Deepavali — Diwali Greetings & Festive Sanctuary 🪔✨
+# Shubh Deepavali
 
-> An immersive, culturally rich Indian Diwali festival experience built for the Website Building Competition
+**A festive, browser-first Diwali experience for creating greetings, sharing good wishes, and celebrating the Festival of Lights.**
 
-[![License: Proprietary](https://img.shields.io/badge/License-Proprietary%20%2F%20All%20Rights%20Reserved-red.svg)](LICENSE)
-[![Hackathon Submission](https://img.shields.io/badge/Hackathon-Original%20Submission-gold.svg)](NOTICE)
-[![Author: Sagnik Dutta](https://img.shields.io/badge/Author-Sagnik%20Dutta-blue.svg)](https://www.linkedin.com/in/sagnikduttahere/)
+Shubh Deepavali brings familiar festive traditions into an interactive website. Visitors can make a greeting for someone they love, draw a rangoli, light a digital diya, or simply explore a little celebration. It is designed to be useful beyond a competition demo: the main experience works without an account, database, or API key.
 
-> [!IMPORTANT]
-> **Copyright & Competition Originality Notice**
-> This repository is the original intellectual property of [Sagnik Dutta](https://www.linkedin.com/in/sagnikduttahere/) created for the official Website Building Competition. All rights reserved. 
-> Hackathon judges and evaluators have full permission to review, compile, and test the project. However, **copying, redistributing, forking for plagiarism, or re-submitting this project to any competition or hackathon is strictly prohibited** under the [Proprietary & Hackathon Submission License](LICENSE). Cryptographic Git commit timestamps establish prior art and proof of original authorship.
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-149eca?logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06b6d4?logo=tailwindcss)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
 
----
+## Screenshots
 
-## 🌟 Key Highlights
+| The Diwali experience | Greeting card studio |
+| --- | --- |
+| ![Shubh Deepavali home page with its Diwali countdown and digital diya](public/screenshots/home.png) | ![Greeting card studio with six themes, editing controls, and a live card preview](public/screenshots/greeting-creator.png) |
 
-- **Cinematic Opening & Sweet Debate**: Skippable atmospheric twilight sequence featuring a playful "Kaju Katli vs Soan Papdi" opening interaction.
-- **Diwali Countdown**: Calibrated for Kartik Amavasya targeting November 8, 2026 in the `Asia/Kolkata` (IST) timezone, with graceful rollover to celebratory states.
-- **Personalised Diya & Wall of Light**: Light digital diyas in 5 craft styles with real-time glowing flame physics, Web Audio chimes, and opt-in community display.
-- **Interactive Rangoli Studio**: Symmetrical drawing canvas (4x, 6x, 8x, 12x radial symmetry) with 8 natural powder colours, animated preset reveals, and instant PNG export.
-- **Greeting Card Creator (6 Distinct Templates)**:
-  1. *Royal Traditional* (Mughal Arch & Brass Diya)
-  2. *Minimal Elegant* (Charcoal Slate & Gold Lines)
-  3. *Golden Luxury* (Black Velvet & Foil Accents)
-  4. *Colourful Family* (Festive Bunting & Joy)
-  5. *Modern Festive* (Cyan Neon Glassmorphism)
-  6. *Spiritual and Serene* (Sacred Shlokas & Lotus)
-- **AI Greeting Copywriter**: Server-side Google Gemini free-tier integration with a verified offline fallback catalog of 36+ authentic multilingual greetings.
-- **Photo Greeting Studio**: 100% client-side image upload, zoom/crop, festive frames, and high-res PNG export with absolute user privacy.
-- **Interactive Celestial Fireworks & Surprise Mode**: Touch/click fireworks simulation, golden confetti showers, and educational facts on pet safety & eco-friendly crackers.
-- **Digital Sky Lanterns & Wish Wall**: Release ascending paper lanterns into the cosmos with heartfelt blessings.
-- **Mystery Gift & Mithai Personality Quiz**: Animated 3D-styled unboxing surprises and a 3-question festive confectionery personality quiz.
-- **Cross-Device Share Links**: Instant, database-free greeting sharing via URL-safe state encoding (`/share?data=...`) with WhatsApp integration.
-- **Native Web Audio Synthesizer**: Pure harmonic bell chimes and firework bursts running natively in the browser with ₹0 cost and zero external audio dependencies.
+## What you can do
 
----
+- **Create and share a personal greeting.** Choose from six card themes, edit the recipient, sender, message, and blessing, then preview and download the card as a high-resolution PNG. Share it through WhatsApp or a URL that opens the greeting on another device.
+- **Get help writing a message.** Use the optional AI copywriter for a tailored festive greeting. Without an API key, it uses a built-in collection of curated greetings instead.
+- **Make a rangoli.** Draw with radial symmetry, explore preset patterns, and export your design as an image.
+- **Light a diya and make a wish.** Add a name or dedication, choose a diya style, or release a sky lantern with a wish. Display choices are opt-in.
+- **Create a photo greeting.** Add a photo, adjust its framing, and apply a festive frame. Photo processing and export happen in the browser.
+- **Explore the celebration.** Launch interactive digital fireworks, open a surprise gift, take a festive quiz, and listen to optional ambient music and sound effects.
+- **Follow the Diwali countdown.** See the festival countdown in the configured India Standard Time timezone, with a celebratory state after the date arrives.
 
-## 🛠️ Technology Stack
+## Made for everyday use
 
-- **Framework**: [Next.js 15](https://nextjs.org/) (App Router, React 19, TypeScript)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) with custom festive design tokens
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Audio**: Web Audio API (OscillatorNode, BiquadFilterNode) + HTML5 Audio Player
-- **Canvas Effects**: HTML5 2D Canvas Physics + [canvas-confetti](https://www.npmjs.com/package/canvas-confetti)
-- **Exporting**: [html-to-image](https://www.npmjs.com/package/html-to-image) for client-side PNG card rendering
+- **No account required:** the core experience is available as soon as the site loads.
+- **Works without AI credentials:** curated greeting copy is available when Gemini is not configured.
+- **Privacy-conscious by design:** uploaded photos stay in the browser. Diya and lantern entries are stored in the visitor's browser; opting in displays them on that device's wall, not a shared online community.
+- **Shareable greetings without a database:** greeting details are encoded in the share URL. Anyone with the link can see its contents, so avoid including information you do not want to share.
+- **Designed for different screens:** the interface supports desktop and mobile layouts, including touch-friendly creative interactions.
 
----
+## Technology
 
-## 🚀 Quick Start Guide
+| Area | Tools |
+| --- | --- |
+| Framework and UI | Next.js 16 App Router, React 19, TypeScript |
+| Styling and animation | Tailwind CSS, Motion |
+| Icons | Lucide React |
+| Drawing and effects | HTML Canvas, `canvas-confetti` |
+| Audio | Web Audio API and HTML audio |
+| Card image export | `html-to-image` |
+| Optional AI copywriting | Server-side Google Gemini API route with curated local fallback messages |
 
-### 1. Prerequisites
-- Node.js 18.18+ or 20+ (Node v26 verified)
-- npm or pnpm or yarn
+## Run locally
 
-### 2. Installation
+### Requirements
+
+- Node.js **20.9 or later**
+- npm
+
+### Install and start
+
 ```bash
-# Clone or navigate to the project directory
-cd "Diwali Greeting website"
-
-# Install dependencies
+git clone https://github.com/sagnikdevelops/Diwali-with-me.git
+cd Diwali-with-me
 npm install
-```
-
-### 3. Local Development
-```bash
-# Start the local development server
 npm run dev
-
-# Open in your browser
-http://localhost:3000
 ```
 
-### 4. Build for Production
+Open [http://localhost:3000](http://localhost:3000).
+
+### Optional AI setup
+
+The site does not require an API key. To enable live Gemini-powered greeting generation, create `.env.local` from the example file and add your key:
+
+```powershell
+Copy-Item .env.example .env.local
+```
+
+```dotenv
+GEMINI_API_KEY=your_api_key
+```
+
+Keep the key in the server-side environment; do not add real credentials to source control. The curated greeting fallback remains available when the key is not configured.
+
+## Quality checks
+
 ```bash
-# Run production build and type checking
+npm run lint
+npm test
 npm run build
-
-# Start production server locally
-npm start
 ```
 
----
+## Project layout
 
-## 🔑 Environment Variables (Optional)
-
-The application operates **100% out of the box with zero required environment variables**.
-If you wish to enable live Gemini AI generation:
-
-```bash
-cp .env.example .env.local
+```text
+src/
+  app/          App Router pages and greeting-generation API
+  components/   Greeting, rangoli, diya, audio, and celebration UI
+  config/       Festival settings and curated greeting content
+  lib/          Share-link, audio, and utility modules
+public/
+  audio/        Ambient tracks and sound effects
+  screenshots/  README screenshots
+tests/          Automated tests
 ```
 
-| Variable | Description | Default |
-|---|---|---|
-| `GEMINI_API_KEY` | Free-tier Google Gemini key from [Google AI Studio](https://aistudio.google.com/) | Uses offline 36-template catalog |
-| `NEXT_PUBLIC_SITE_URL` | Base URL for social share links | `http://localhost:3000` |
+## Deployment
 
----
+Deploy to a host that supports Next.js, such as Vercel. The main experience needs no database setup. Add `GEMINI_API_KEY` to the host's server-side environment only if you want live AI greeting generation.
 
-## 🌐 Public Deployment Instructions (100% Free Tier)
+## More documentation
 
-### Deploying to Vercel (Recommended):
-1. Push this repository to GitHub or GitLab.
-2. Sign in to [Vercel](https://vercel.com/) (Hobby Plan — ₹0).
-3. Click **Add New Project** and import the repository.
-4. Next.js is auto-detected. Add `GEMINI_API_KEY` in Environment Variables if desired.
-5. Click **Deploy**. Your site will be live at `https://your-project.vercel.app` in under 60 seconds!
+- [Project documentation](PROJECT_DOCUMENTATION.md) — feature details and behavior
+- [Website architecture](WEBSITE_ARCHITECTURE.md) — routes, components, and data flow
+- [Design system](DESIGN_SYSTEM.md) — visual tokens and design guidance
+- [QA report](QA_REPORT.md) — testing and quality notes
 
-### Deploying to Netlify:
-1. Sign in to [Netlify](https://netlify.com/) (Starter Plan — ₹0).
-2. Connect your Git repository.
-3. Build command: `npm run build` | Publish directory: `.next`
-4. Deploy site for free.
+## Author and license
 
----
-
-## 📄 Project Documentation Index
-
-- `DESIGN_SYSTEM.md` — Visual guidelines, color tokens, and motion rules
-- `WEBSITE_ARCHITECTURE.md` — Technical routes, data flow, and components
-- `PROJECT_DOCUMENTATION.md` — In-depth feature breakdown and specifications
-- `COST_AND_SERVICES.md` — ₹0 budget verification and terms audit
-- `AUDIO_ASSETS.md` — Audio specifications and royalty-free sourcing guide
-- `ASSET_REQUESTS.md` — Vector and image specifications
-- `SETUP_REQUIRED.md` — Setup instructions for developers and judges
-- `QA_REPORT.md` — Comprehensive test matrix and runtime QA results
-
----
-
-## ⚖️ License & Copyright
-
-Copyright (c) 2026 **Sagnik Dutta** ([LinkedIn](https://www.linkedin.com/in/sagnikduttahere/)). All rights reserved.
-
-This software is licensed under the **Proprietary & Hackathon Submission License**. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE) for complete terms. Unauthorized copying, mirroring, modification, or competition re-submission will be reported for academic and competition misconduct.
-
-
+Created by [Sagnik Dutta](https://www.linkedin.com/in/sagnikduttahere/). This project is provided under its proprietary terms; see [LICENSE](LICENSE) and [NOTICE](NOTICE) for details.
