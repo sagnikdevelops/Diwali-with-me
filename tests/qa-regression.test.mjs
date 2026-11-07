@@ -157,3 +157,24 @@ test("Audio Assets: All required background music tracks and sound effects exist
     assert.ok(stat.size > 1000, `Audio asset must not be empty: ${relPath} (size: ${stat.size} bytes)`);
   }
 });
+
+// Test Fireworks & Audio Autoplay Configuration
+test("User Experience: Auto-fireworks disabled, reacts on hover/click; Music autoplays on visit", () => {
+  const fwPath = path.resolve("src/components/fireworks/FireworksCanvas.tsx");
+  const fwContent = fs.readFileSync(fwPath, "utf-8");
+
+  // Auto-launch loop must not exist
+  assert.equal(fwContent.includes("lastAutoLaunch"), false, "Auto-launch loop must be removed");
+  // Hover interaction must exist
+  assert.equal(fwContent.includes("onMouseMove"), true, "Must react on cursor hover");
+  assert.equal(fwContent.includes("handleHoverInteraction"), true, "Must have hover interaction handler");
+
+  const audioPath = path.resolve("src/components/audio/AudioBar.tsx");
+  const audioContent = fs.readFileSync(audioPath, "utf-8");
+
+  // AudioBar must have automatic autoplay and preload auto
+  assert.equal(audioContent.includes("tryAutoPlay"), true, "AudioBar must attempt automatic autoplay on visit");
+  assert.equal(audioContent.includes('preload="auto"'), true, "AudioBar must have preload=auto for instant playback");
+});
+
+

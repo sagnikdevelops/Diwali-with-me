@@ -92,23 +92,12 @@ export function FireworksCanvas() {
     handleResize();
     window.addEventListener("resize", handleResize);
 
-    let lastAutoLaunch = Date.now();
-
     const loop = () => {
       if (!isRunning) return;
 
       // Soft trail clear
       ctx.fillStyle = "rgba(8, 13, 36, 0.25)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Auto launch subtle rockets occasionally
-      if (Date.now() - lastAutoLaunch > 2400) {
-        lastAutoLaunch = Date.now();
-        launchRocket(
-          canvas.width * 0.2 + Math.random() * (canvas.width * 0.6),
-          canvas.height * 0.2 + Math.random() * (canvas.height * 0.3)
-        );
-      }
 
       // Update and draw rockets
       for (let i = rocketsRef.current.length - 1; i >= 0; i--) {
@@ -165,7 +154,39 @@ export function FireworksCanvas() {
       if (animFrameIdRef.current) cancelAnimationFrame(animFrameIdRef.current);
       window.removeEventListener("resize", handleResize);
     };
-  }, [isRunning, createBurst, launchRocket]);
+  }, [isRunning, createBurst]);
+
+  const lastHoverRef = useRef<number>(0);
+
+  // Hover interaction: creates shimmering festive spark dust following cursor
+  const handleHoverInteraction = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const now = Date.now();
+    if (now - lastHoverRef.current < 45) return; // throttle for 60fps smoothness
+    lastHoverRef.current = now;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    // Spawn 4 shimmering trail particles
+    for (let i = 0; i < 4; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 2.2 + 0.5;
+      particlesRef.current.push({
+        x: x + (Math.random() - 0.5) * 6,
+        y: y + (Math.random() - 0.5) * 6,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 0.4,
+        color: BURST_COLORS[Math.floor(Math.random() * BURST_COLORS.length)],
+        alpha: 0.95,
+        decay: Math.random() * 0.035 + 0.025,
+        size: Math.random() * 2 + 1,
+      });
+    }
+  };
 
   // Click & Touch to launch firework at exact position
   const handleCanvasInteraction = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
@@ -188,7 +209,7 @@ export function FireworksCanvas() {
         <div className="flex items-center gap-2 pointer-events-auto">
           <div className="px-3 py-1 rounded-full bg-diwali-midnight/80 border border-diwali-gold/40 text-xs font-semibold text-diwali-goldLight flex items-center gap-1.5 shadow-md">
             <Sparkles className="w-3.5 h-3.5 text-diwali-amber" />
-            <span>Tap or Click Sky to Burst</span>
+            <span>Hover to Spark • Click Sky to Burst</span>
           </div>
         </div>
 
@@ -203,7 +224,7 @@ export function FireworksCanvas() {
                 );
               }
             }}
-            className="px-3.5 py-1.5 rounded-xl bg-diwali-gold text-diwali-navy font-bold text-xs hover:bg-diwali-goldLight transition-colors flex items-center gap-1.5 shadow-md"
+            className="px-3.5 py-1.5 rounded-xl bg-diwali-gold text-diwali-navy font-bold text-xs hover:bg-diwali-goldLight transition-colors flex items-center gap-1.5 shadow-md cursor-pointer"
           >
             <Flame className="w-3.5 h-3.5 fill-current" />
             <span>Launch Firework</span>
@@ -216,6 +237,7 @@ export function FireworksCanvas() {
         ref={canvasRef}
         onClick={handleCanvasInteraction}
         onTouchStart={handleCanvasInteraction}
+        onMouseMove={handleHoverInteraction}
         className="w-full h-[360px] sm:h-[420px] cursor-crosshair block"
       />
 

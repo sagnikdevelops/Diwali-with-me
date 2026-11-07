@@ -42,6 +42,51 @@ export function AudioBar() {
   const [hasAudioFileError, setHasAudioFileError] = useState<boolean>(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const userExplicitlyPausedRef = useRef<boolean>(false);
+
+  // Auto-play music automatically when user visits the website
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    let hasStarted = false;
+
+    const tryAutoPlay = () => {
+      if (hasStarted || userExplicitlyPausedRef.current || !audio) return;
+      audio.volume = isMuted ? 0 : volume;
+      audio
+        .play()
+        .then(() => {
+          hasStarted = true;
+          setIsPlaying(true);
+          setHasAudioFileError(false);
+          cleanupGestureListeners();
+        })
+        .catch(() => {
+          // Autoplay blocked by browser policy until user interacts with the page
+        });
+    };
+
+    const cleanupGestureListeners = () => {
+      window.removeEventListener("click", tryAutoPlay);
+      window.removeEventListener("pointerdown", tryAutoPlay);
+      window.removeEventListener("keydown", tryAutoPlay);
+      window.removeEventListener("touchstart", tryAutoPlay);
+    };
+
+    // 1. Try immediate autoplay
+    tryAutoPlay();
+
+    // 2. Play automatically on the very first user interaction anywhere on the site
+    window.addEventListener("click", tryAutoPlay, { passive: true });
+    window.addEventListener("pointerdown", tryAutoPlay, { passive: true });
+    window.addEventListener("keydown", tryAutoPlay, { passive: true });
+    window.addEventListener("touchstart", tryAutoPlay, { passive: true });
+
+    return () => {
+      cleanupGestureListeners();
+    };
+  }, [isMuted, volume]);
 
   useEffect(() => {
     // Keep Web Audio synth in sync with user state
@@ -60,9 +105,11 @@ export function AudioBar() {
     setHasAudioFileError(false);
 
     if (isPlaying) {
+      userExplicitlyPausedRef.current = true;
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
+      userExplicitlyPausedRef.current = false;
       audioRef.current
         .play()
         .then(() => {
@@ -105,7 +152,7 @@ export function AudioBar() {
         ref={audioRef}
         src={TRACKS[currentTrackIndex].src}
         loop
-        preload="none"
+        preload="auto"
         onError={() => setHasAudioFileError(true)}
       />
 
