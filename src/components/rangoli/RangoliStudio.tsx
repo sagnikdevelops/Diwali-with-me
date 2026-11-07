@@ -291,14 +291,18 @@ export function RangoliStudio() {
 
           {/* Color Palette */}
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-diwali-goldLight uppercase tracking-wider mb-3">
+            <div id="rangoli-palette-label" className="flex items-center gap-2 text-xs font-semibold text-diwali-goldLight uppercase tracking-wider mb-3">
               <Palette className="w-3.5 h-3.5 text-diwali-gold" />
               <span>Natural Powder Palette</span>
             </div>
-            <div className="grid grid-cols-4 gap-2.5">
+            <div role="radiogroup" aria-labelledby="rangoli-palette-label" className="grid grid-cols-4 gap-2.5">
               {PALETTE.map((col) => (
                 <button
                   key={col.hex}
+                  type="button"
+                  role="radio"
+                  aria-checked={selectedColor === col.hex}
+                  aria-label={col.name}
                   onClick={() => setSelectedColor(col.hex)}
                   title={col.name}
                   className={`relative p-2.5 rounded-xl border flex flex-col items-center gap-1 transition-transform ${
@@ -322,17 +326,21 @@ export function RangoliStudio() {
           {/* Symmetry & Brush Slider */}
           <div className="space-y-4 pt-2 border-t border-diwali-gold/20">
             <div>
-              <div className="flex justify-between text-xs text-diwali-lavender mb-1.5 font-medium">
+              <div id="rangoli-symmetry-label" className="flex justify-between text-xs text-diwali-lavender mb-1.5 font-medium">
                 <span className="flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-diwali-amber" />
                   <span>Radial Symmetry</span>
                 </span>
                 <span className="text-diwali-goldLight font-bold">{symmetry}-Fold</span>
               </div>
-              <div className="grid grid-cols-4 gap-2">
+              <div role="radiogroup" aria-labelledby="rangoli-symmetry-label" className="grid grid-cols-4 gap-2">
                 {[4, 6, 8, 12].map((num) => (
                   <button
                     key={num}
+                    type="button"
+                    role="radio"
+                    aria-checked={symmetry === num}
+                    aria-label={`${num}-Fold Symmetry`}
                     onClick={() => {
                       setSymmetry(num);
                     }}
@@ -349,15 +357,18 @@ export function RangoliStudio() {
             </div>
 
             <div>
-              <div className="flex justify-between text-xs text-diwali-lavender mb-1 font-medium">
+              <label htmlFor="rangoli-brush-slider" className="flex justify-between text-xs text-diwali-lavender mb-1 font-medium cursor-pointer">
                 <span className="flex items-center gap-1.5">
                   <Brush className="w-3.5 h-3.5 text-diwali-gold" />
                   <span>Brush Width</span>
                 </span>
                 <span className="text-diwali-goldLight">{brushSize}px</span>
-              </div>
+              </label>
               <input
+                id="rangoli-brush-slider"
+                name="rangoliBrushSize"
                 type="range"
+                aria-label="Brush Width"
                 min="1"
                 max="8"
                 step="1"

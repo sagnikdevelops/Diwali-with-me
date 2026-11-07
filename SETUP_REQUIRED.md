@@ -3,7 +3,7 @@
 ## 1. Zero-Configuration Mode (Default)
 The website is completely self-contained and functions immediately out of the box without any mandatory API keys or cloud accounts:
 - **Interactive Fireworks**: Fully functional via HTML5 Canvas.
-- **Diya Lighting & Wall of Light**: Works locally via `localStorage` with initial community entries.
+- **Diya Lighting & Wall of Light / Wish Wall**: Operates locally in the visitor's browser via `localStorage` with curated starter entries.
 - **Rangoli Studio**: Full interactive drawing, preset reveals, and PNG download.
 - **Greeting Card Creator**: All 6 templates render and export as PNG.
 - **Shareable Links**: Generates instant cross-device share links using URL state encoding (`/share?data=...`).

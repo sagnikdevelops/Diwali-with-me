@@ -18,7 +18,7 @@ export function CinematicWelcome({ onEnter, onSkip }: CinematicWelcomeProps) {
     // Stage 2: Light the center Diya
     const t2 = setTimeout(() => {
       setStage(2);
-      audioSynth.playDiyaChime();
+      audioSynth.playDiyaLight();
     }, 1800);
     // Stage 3: Reveal headline & Enter button
     const t3 = setTimeout(() => setStage(3), 3000);

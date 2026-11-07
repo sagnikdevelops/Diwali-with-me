@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, Flame, Sparkles, Check, Share2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, Flame, Sparkles, Check, Share2, AlertCircle } from "lucide-react";
 import { DiyaVisual, DiyaColorStyle } from "./DiyaVisual";
 import { audioSynth } from "@/lib/audio-synth";
+import { copyToClipboard } from "@/lib/utils";
 
 export interface LitDiyaData {
   id: string;
@@ -34,8 +35,20 @@ export function DiyaLightModal({ isOpen, onClose, onDiyaLit }: DiyaLightModalPro
   const [selectedStyle, setSelectedStyle] = useState<DiyaColorStyle>("terracotta");
   const [isPublic, setIsPublic] = useState<boolean>(true);
   const [isLighting, setIsLighting] = useState<boolean>(false);
+  const [flameIgnited, setFlameIgnited] = useState<boolean>(false);
   const [justLit, setJustLit] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+  const [copyFailed, setCopyFailed] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setFlameIgnited(false);
+      setIsLighting(false);
+      setJustLit(false);
+      setCopied(false);
+      setCopyFailed(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -44,7 +57,13 @@ export function DiyaLightModal({ isOpen, onClose, onDiyaLit }: DiyaLightModalPro
     if (!name.trim()) return;
 
     setIsLighting(true);
-    audioSynth.playDiyaChime();
+    setFlameIgnited(false);
+    audioSynth.playDiyaLight();
+
+    // Flame ignites at exact moment match strikes (~220ms)
+    setTimeout(() => {
+      setFlameIgnited(true);
+    }, 220);
 
     const newDiya: LitDiyaData = {
       id: "diya-" + Date.now() + "-" + Math.random().toString(36).substring(2, 7),
@@ -59,21 +78,31 @@ export function DiyaLightModal({ isOpen, onClose, onDiyaLit }: DiyaLightModalPro
       setIsLighting(false);
       setJustLit(true);
       onDiyaLit(newDiya);
-    }, 1200);
+    }, 1800);
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const text = `I just lit a digital Diya for Diwali! 🪔✨ Light your own diya and spread the light: ${window.location.origin}`;
+    setCopyFailed(false);
     if (navigator.share) {
-      navigator.share({
-        title: "Lit a Diwali Diya",
-        text: text,
-        url: window.location.origin,
-      }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(text);
+      try {
+        await navigator.share({
+          title: "Lit a Diwali Diya",
+          text: text,
+          url: window.location.origin,
+        });
+        return;
+      } catch {
+        // Fallback to clipboard
+      }
+    }
+    const success = await copyToClipboard(text);
+    if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } else {
+      setCopyFailed(true);
+      setTimeout(() => setCopyFailed(false), 3000);
     }
   };
 
@@ -105,17 +134,33 @@ export function DiyaLightModal({ isOpen, onClose, onDiyaLit }: DiyaLightModalPro
             </div>
 
             {/* Live Diya Preview */}
-            <div className="flex justify-center my-4 py-3 bg-diwali-navy/60 rounded-2xl border border-white/5">
-              <DiyaVisual styleName={selectedStyle} isLit={!isLighting} size="lg" />
+            <div className="flex flex-col items-center justify-center my-4 py-4 bg-diwali-navy/60 rounded-2xl border border-white/5 relative overflow-hidden">
+              <DiyaVisual styleName={selectedStyle} isLit={flameIgnited} size="lg" />
+              {!flameIgnited && !isLighting && (
+                <span className="text-[10px] text-diwali-lavender/70 mt-2 font-mono">
+                  Select craft style below • Click to ignite
+                </span>
+              )}
+              {isLighting && !flameIgnited && (
+                <span className="text-[10px] text-diwali-goldLight mt-2 animate-pulse font-mono">
+                  Striking festive match...
+                </span>
+              )}
+              {isLighting && flameIgnited && (
+                <span className="text-[10px] text-diwali-amber mt-2 font-bold animate-bounce">
+                  ✨ Sacred Flame Ignited!
+                </span>
+              )}
             </div>
 
             <form onSubmit={handleLightDiya} className="space-y-4">
               {/* Name Field */}
               <div>
-                <label className="block text-xs font-medium text-diwali-lavender mb-1">
+                <label htmlFor="diya-name-input" className="block text-xs font-medium text-diwali-lavender mb-1">
                   Your Name or Family Name <span className="text-diwali-gold">*</span>
                 </label>
                 <input
+                  id="diya-name-input"
                   type="text"
                   required
                   maxLength={30}
@@ -128,10 +173,11 @@ export function DiyaLightModal({ isOpen, onClose, onDiyaLit }: DiyaLightModalPro
 
               {/* Message Field */}
               <div>
-                <label className="block text-xs font-medium text-diwali-lavender mb-1">
+                <label htmlFor="diya-message-input" className="block text-xs font-medium text-diwali-lavender mb-1">
                   Festive Wish or Dedication (Optional)
                 </label>
                 <textarea
+                  id="diya-message-input"
                   maxLength={140}
                   rows={2}
                   value={message}
@@ -146,11 +192,13 @@ export function DiyaLightModal({ isOpen, onClose, onDiyaLit }: DiyaLightModalPro
                 <label className="block text-xs font-medium text-diwali-lavender mb-2">
                   Choose Diya Craft Style
                 </label>
-                <div className="grid grid-cols-5 gap-2">
+                <div className="grid grid-cols-5 gap-2" role="radiogroup" aria-label="Diya Craft Style">
                   {STYLES.map((st) => (
                     <button
                       key={st.id}
                       type="button"
+                      role="radio"
+                      aria-checked={selectedStyle === st.id}
                       onClick={() => setSelectedStyle(st.id)}
                       className={`p-2 rounded-xl border flex flex-col items-center gap-1 transition-all ${
                         selectedStyle === st.id
@@ -172,15 +220,16 @@ export function DiyaLightModal({ isOpen, onClose, onDiyaLit }: DiyaLightModalPro
 
               {/* Privacy & Opt-in Consent */}
               <div className="pt-2">
-                <label className="flex items-start gap-2.5 cursor-pointer text-left">
+                <label htmlFor="diya-consent-checkbox" className="flex items-start gap-2.5 cursor-pointer text-left">
                   <input
+                    id="diya-consent-checkbox"
                     type="checkbox"
                     checked={isPublic}
                     onChange={(e) => setIsPublic(e.target.checked)}
                     className="mt-0.5 rounded border-diwali-gold/40 text-diwali-gold focus:ring-0 accent-diwali-gold"
                   />
                   <span className="text-[11px] text-diwali-lavender leading-tight">
-                    Display my Diya on the community <strong className="text-diwali-ivory">Wall of Light</strong>. Only your name and wish are shown. No contact information is ever collected.
+                    Display my Diya on this browser&apos;s <strong className="text-diwali-ivory">Celebration Wall of Light</strong> (saved locally on this device; no personal contact data collected).
                   </span>
                 </label>
               </div>
@@ -222,8 +271,22 @@ export function DiyaLightModal({ isOpen, onClose, onDiyaLit }: DiyaLightModalPro
                 onClick={handleShare}
                 className="flex-1 py-2.5 px-4 rounded-xl bg-diwali-surfaceLight hover:bg-diwali-surface border border-diwali-gold/40 text-xs font-medium text-diwali-ivory flex items-center justify-center gap-1.5 transition-colors"
               >
-                <Share2 className="w-4 h-4 text-diwali-gold" />
-                <span>{copied ? "Link Copied!" : "Share the Light"}</span>
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-400" />
+                    <span className="text-emerald-300 font-semibold">Link Copied!</span>
+                  </>
+                ) : copyFailed ? (
+                  <>
+                    <AlertCircle className="w-4 h-4 text-diwali-crimson" />
+                    <span className="text-diwali-crimson font-semibold">Copy Failed</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-4 h-4 text-diwali-gold" />
+                    <span>Share the Light</span>
+                  </>
+                )}
               </button>
 
               <button

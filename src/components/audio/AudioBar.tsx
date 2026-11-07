@@ -14,20 +14,20 @@ interface AudioTrack {
 const TRACKS: AudioTrack[] = [
   {
     id: "sitar",
-    title: "Festive Sitar & Tanpura",
-    artist: "Classical Ambient",
+    title: "Diwali Festive Ambience",
+    artist: "Festive Background Music",
     src: "/audio/festive-sitar.mp3",
   },
   {
     id: "bansuri",
-    title: "Gentle Bansuri Flute",
-    artist: "Raga Meditative",
+    title: "Diwali Celebration Beats",
+    artist: "Festive Background Music",
     src: "/audio/bansuri-flute.mp3",
   },
   {
     id: "santoor",
-    title: "Santoor Celebration",
-    artist: "Joyous Festive Melodies",
+    title: "Festive Deepavali Vibes",
+    artist: "Festive Background Music",
     src: "/audio/santoor-celebration.mp3",
   },
 ];
@@ -162,11 +162,13 @@ export function AudioBar() {
           <div className="mt-3 pt-3 border-t border-diwali-gold/20 space-y-3">
             {/* Volume Slider */}
             <div>
-              <div className="flex justify-between text-[11px] text-diwali-lavender mb-1">
+              <label htmlFor="audio-volume-slider" className="flex justify-between text-[11px] text-diwali-lavender mb-1 cursor-pointer">
                 <span>Music Volume</span>
                 <span>{Math.round(volume * 100)}%</span>
-              </div>
+              </label>
               <input
+                id="audio-volume-slider"
+                name="audioVolume"
                 type="range"
                 min="0"
                 max="1"

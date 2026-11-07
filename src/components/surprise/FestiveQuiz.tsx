@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Sparkles, CheckCircle2, RotateCcw, Share2, Award } from "lucide-react";
+import { Sparkles, CheckCircle2, RotateCcw, Share2, Award, AlertCircle } from "lucide-react";
 import { audioSynth } from "@/lib/audio-synth";
+import { copyToClipboard } from "@/lib/utils";
 
 interface Question {
   question: string;
@@ -71,6 +72,7 @@ export function FestiveQuiz() {
   const [scores, setScores] = useState<Record<string, number>>({ kaju: 0, jamun: 0, laddu: 0, jalebi: 0 });
   const [result, setResult] = useState<keyof typeof PROFILES | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
+  const [copyFailed, setCopyFailed] = useState<boolean>(false);
 
   const handleSelectOption = (sweet: "kaju" | "jamun" | "laddu" | "jalebi") => {
     audioSynth.playSubtleClick();
@@ -100,16 +102,27 @@ export function FestiveQuiz() {
     setResult(null);
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
     if (!result) return;
     const profile = PROFILES[result];
     const text = `I took the Diwali Mithai Personality Quiz and got: ${profile.title}! ✨ Find out your festive sweet: ${window.location.origin}`;
     if (navigator.share) {
-      navigator.share({ title: "My Diwali Mithai Personality", text, url: window.location.origin }).catch(() => {});
+      try {
+        await navigator.share({ title: "My Diwali Mithai Personality", text, url: window.location.origin });
+      } catch {
+        // Fallback or user dismiss
+      }
     } else {
-      navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      const success = await copyToClipboard(text);
+      if (success) {
+        setCopied(true);
+        setCopyFailed(false);
+        setTimeout(() => setCopied(false), 2500);
+      } else {
+        setCopyFailed(true);
+        setCopied(false);
+        setTimeout(() => setCopyFailed(false), 3000);
+      }
     }
   };
 
@@ -182,8 +195,22 @@ export function FestiveQuiz() {
                 onClick={handleShare}
                 className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-diwali-gold text-diwali-navy font-bold text-xs hover:bg-diwali-goldLight transition-colors flex items-center justify-center gap-2"
               >
-                <Share2 className="w-4 h-4" />
-                <span>{copied ? "Result Copied!" : "Share My Result"}</span>
+                {copyFailed ? (
+                  <>
+                    <AlertCircle className="w-4 h-4 text-diwali-crimson" />
+                    <span className="text-red-950 font-bold">Copy Failed</span>
+                  </>
+                ) : copied ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-800" />
+                    <span>Result Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-4 h-4" />
+                    <span>Share My Result</span>
+                  </>
+                )}
               </button>
 
               <button

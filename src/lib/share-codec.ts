@@ -37,18 +37,22 @@ export function encodeGreetingData(data: ShareableGreetingData): string {
 
 export function decodeGreetingData(encodedStr: string): ShareableGreetingData | null {
   try {
-    if (!encodedStr) return null;
+    if (!encodedStr || typeof encodedStr !== "string") return null;
     let base64 = encodedStr.replace(/-/g, "+").replace(/_/g, "/");
     while (base64.length % 4) {
       base64 += "=";
     }
-    const binary = atob(base64);
+    // Use window.atob or global atob safely
+    const atobFn = typeof window !== "undefined" ? window.atob : (str: string) => Buffer.from(str, "base64").toString("binary");
+    const binary = atobFn(base64);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) {
       bytes[i] = binary.charCodeAt(i);
     }
     const jsonStr = new TextDecoder().decode(bytes);
     const parsed = JSON.parse(jsonStr);
+
+    if (!parsed || typeof parsed !== "object") return null;
 
     const validTemplates = ["royal", "minimal", "gold", "family", "modern", "spiritual"];
     const template = validTemplates.includes(parsed.t) ? parsed.t : "royal";
@@ -62,8 +66,8 @@ export function decodeGreetingData(encodedStr: string): ShareableGreetingData | 
       diyaStyle: parsed.d ? String(parsed.d) : undefined,
       createdAt: parsed.ts ? Number(parsed.ts) : undefined,
     };
-  } catch (err) {
-    console.error("Error decoding greeting state:", err);
+  } catch {
+    // Gracefully handle expected invalid/malformed base64 or JSON strings without unhandled console errors
     return null;
   }
 }

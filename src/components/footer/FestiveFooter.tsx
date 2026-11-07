@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Flame, ArrowUp, Heart, Sparkles } from "lucide-react";
+import { Flame, ArrowUp, Sparkles } from "lucide-react";
 import { audioSynth } from "@/lib/audio-synth";
 
 export function FestiveFooter() {
@@ -52,12 +52,17 @@ export function FestiveFooter() {
           Crafted with devotion & festive light
         </p>
 
-        {/* User's Desired Copyright Signature */}
+        {/* Copyright Signature */}
         <div className="flex items-center justify-center gap-1.5 text-xs sm:text-sm text-diwali-goldLight font-semibold">
           <span>&copy; {new Date().getFullYear()}</span>
-          <span className="text-diwali-ivory hover:text-diwali-gold transition-colors font-bold tracking-wide">
+          <a
+            href="https://www.linkedin.com/in/sagnikduttahere/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-diwali-ivory hover:text-diwali-gold transition-colors font-bold tracking-wide underline-offset-2 hover:underline"
+          >
             Sagnik Dutta
-          </span>
+          </a>
           <span className="text-diwali-lavender font-normal">• All Rights Reserved</span>
         </div>
 
@@ -79,3 +84,4 @@ export function FestiveFooter() {
     </footer>
   );
 }
+

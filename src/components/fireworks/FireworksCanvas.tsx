@@ -67,6 +67,8 @@ export function FireworksCanvas() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    audioSynth.playFireworkLaunch();
+
     rocketsRef.current.push({
       x: targetX,
       y: canvas.height,
@@ -176,7 +178,7 @@ export function FireworksCanvas() {
     const x = clientX - rect.left;
     const y = clientY - rect.top;
 
-    createBurst(x, y);
+    launchRocket(x, y);
   };
 
   return (
@@ -195,7 +197,7 @@ export function FireworksCanvas() {
             onClick={() => {
               const canvas = canvasRef.current;
               if (canvas) {
-                createBurst(
+                launchRocket(
                   canvas.width * 0.3 + Math.random() * (canvas.width * 0.4),
                   canvas.height * 0.25 + Math.random() * (canvas.height * 0.3)
                 );

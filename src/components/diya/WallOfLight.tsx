@@ -61,6 +61,8 @@ export function WallOfLight() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [myDiyaId, setMyDiyaId] = useState<string | null>(null);
 
+  const [myDiya, setMyDiya] = useState<LitDiyaData | null>(null);
+
   // Load locally saved diyas on mount
   useEffect(() => {
     try {
@@ -69,11 +71,12 @@ export function WallOfLight() {
         const parsed: LitDiyaData[] = JSON.parse(stored);
         if (parsed.length > 0) {
           setMyDiyaId(parsed[0].id);
-          // Merge user diyas with community diyas ensuring no duplicates
+          setMyDiya(parsed[0]);
+          // Merge ONLY opted-in public diyas onto the wall; private diyas are strictly excluded
           setDiyas((prev) => {
             const ids = new Set(prev.map((d) => d.id));
-            const newOnes = parsed.filter((d) => !ids.has(d.id));
-            return [...newOnes, ...prev];
+            const publicNewOnes = parsed.filter((d) => d.isPublic === true && !ids.has(d.id));
+            return [...publicNewOnes, ...prev];
           });
         }
       }
@@ -84,7 +87,12 @@ export function WallOfLight() {
 
   const handleDiyaLit = (newDiya: LitDiyaData) => {
     setMyDiyaId(newDiya.id);
-    setDiyas((prev) => [newDiya, ...prev]);
+    setMyDiya(newDiya);
+
+    // Only render on the wall if user gave explicit consent (isPublic === true)
+    if (newDiya.isPublic) {
+      setDiyas((prev) => [newDiya, ...prev]);
+    }
 
     // Save to local storage
     try {
@@ -99,7 +107,10 @@ export function WallOfLight() {
 
   const handleDeleteMyDiya = (id: string) => {
     setDiyas((prev) => prev.filter((d) => d.id !== id));
-    if (myDiyaId === id) setMyDiyaId(null);
+    if (myDiyaId === id) {
+      setMyDiyaId(null);
+      setMyDiya(null);
+    }
     try {
       const stored = localStorage.getItem("diwali_my_diyas");
       if (stored) {
@@ -118,20 +129,20 @@ export function WallOfLight() {
       <div className="text-center max-w-2xl mx-auto mb-12">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-diwali-purple/30 border border-diwali-gold/30 text-xs font-semibold text-diwali-goldLight mb-3">
           <Sparkles className="w-3.5 h-3.5 text-diwali-amber" />
-          <span>Sacred Community Sanctuary</span>
+          <span>Celebration Sanctuary</span>
         </div>
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-diwali-ivory mb-3">
           The Wall of Light
         </h2>
         <p className="text-sm sm:text-base text-diwali-lavender">
-          Every lit diya joins this sacred constellation of goodwill. Light your flame, leave a heartfelt dedication, and watch our shared illumination grow.
+          Every lit diya joins this illuminated constellation on your browser. Light your flame, leave a heartfelt dedication, and watch your festive illumination grow (saved locally on your device).
         </p>
 
         {/* CTA Button */}
         <div className="mt-6 flex justify-center">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-6 py-3 rounded-2xl bg-gradient-to-r from-diwali-gold via-diwali-amber to-diwali-gold text-diwali-navy font-bold text-sm shadow-[0_0_20px_rgba(212,175,55,0.4)] hover:shadow-[0_0_30px_rgba(255,181,71,0.6)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+            className="px-6 py-3 rounded-2xl bg-gradient-to-r from-diwali-gold via-diwali-amber to-diwali-gold text-diwali-navy font-bold text-sm shadow-[0_0_20px_rgba(212,175,55,0.4)] hover:shadow-[0_0_30px_rgba(255,181,71,0.6)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
             <Flame className="w-4 h-4 fill-current text-diwali-crimson" />
@@ -139,6 +150,34 @@ export function WallOfLight() {
           </button>
         </div>
       </div>
+
+      {/* Private Diya Sanctuary Card if user opted out of public wall */}
+      {myDiya && !myDiya.isPublic && (
+        <div className="mb-8 p-4 sm:p-5 rounded-2xl bg-diwali-purple/20 border border-diwali-gold/30 max-w-xl mx-auto flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <DiyaVisual styleName={myDiya.style} isLit={true} size="sm" />
+            <div className="text-left">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-diwali-goldLight">
+                Personal Devotional Flame (Private)
+              </span>
+              <p className="text-xs font-semibold text-diwali-ivory">
+                {myDiya.name}: &ldquo;{myDiya.message || "Auspicious prayers"}&rdquo;
+              </p>
+              <p className="text-[10px] text-diwali-lavender">
+                Held in your private sanctuary; not shared on the celebration wall per your consent.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => handleDeleteMyDiya(myDiya.id)}
+            title="Extinguish my private Diya"
+            className="p-2 text-diwali-lavender hover:text-diwali-crimson transition-colors"
+            aria-label="Remove private Diya"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Grid of Lit Diyas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

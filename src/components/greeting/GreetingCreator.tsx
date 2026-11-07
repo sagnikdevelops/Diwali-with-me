@@ -9,6 +9,7 @@ import { ModernFestive } from "./templates/ModernFestive";
 import { SpiritualSerene } from "./templates/SpiritualSerene";
 import { AiGreetingModal } from "./AiGreetingModal";
 import { encodeGreetingData, ShareableGreetingData } from "@/lib/share-codec";
+import { copyToClipboard } from "@/lib/utils";
 import { toPng } from "html-to-image";
 import {
   Sparkles,
@@ -19,6 +20,7 @@ import {
   Wand2,
   Send,
   MessageCircle,
+  AlertCircle,
 } from "lucide-react";
 import { audioSynth } from "@/lib/audio-synth";
 
@@ -45,6 +47,7 @@ export function GreetingCreator() {
   const [isAiModalOpen, setIsAiModalOpen] = useState<boolean>(false);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
+  const [copyLinkFailed, setCopyLinkFailed] = useState<boolean>(false);
 
   const cardRef = useRef<HTMLDivElement | null>(null);
 
@@ -85,6 +88,19 @@ export function GreetingCreator() {
     return `${origin}/share?data=${code}`;
   };
 
+  const handleCopyLink = async () => {
+    const shareUrl = getShareUrl();
+    setCopyLinkFailed(false);
+    const success = await copyToClipboard(shareUrl);
+    if (success) {
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2500);
+    } else {
+      setCopyLinkFailed(true);
+      setTimeout(() => setCopyLinkFailed(false), 3000);
+    }
+  };
+
   // Share via Web Share API
   const handleShare = async () => {
     const shareUrl = getShareUrl();
@@ -97,20 +113,12 @@ export function GreetingCreator() {
           text: shareText,
           url: shareUrl,
         });
+        return;
       } catch {
         // Fallback to clipboard
-        handleCopyLink();
       }
-    } else {
-      handleCopyLink();
     }
-  };
-
-  const handleCopyLink = () => {
-    const shareUrl = getShareUrl();
-    navigator.clipboard.writeText(shareUrl);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2500);
+    await handleCopyLink();
   };
 
   const handleWhatsApp = () => {
@@ -190,10 +198,11 @@ export function GreetingCreator() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Recipient */}
               <div>
-                <label className="block text-xs font-medium text-diwali-lavender mb-1">
+                <label htmlFor="greeting-recipient-input" className="block text-xs font-medium text-diwali-lavender mb-1">
                   Recipient Name <span className="text-diwali-gold">*</span>
                 </label>
                 <input
+                  id="greeting-recipient-input"
                   type="text"
                   maxLength={40}
                   value={recipient}
@@ -205,10 +214,11 @@ export function GreetingCreator() {
 
               {/* Sender */}
               <div>
-                <label className="block text-xs font-medium text-diwali-lavender mb-1">
+                <label htmlFor="greeting-sender-input" className="block text-xs font-medium text-diwali-lavender mb-1">
                   Sender Name <span className="text-diwali-gold">*</span>
                 </label>
                 <input
+                  id="greeting-sender-input"
                   type="text"
                   maxLength={40}
                   value={sender}
@@ -222,7 +232,7 @@ export function GreetingCreator() {
             {/* Custom Message & AI Trigger */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-medium text-diwali-lavender">
+                <label htmlFor="greeting-message-input" className="text-xs font-medium text-diwali-lavender">
                   Festive Message
                 </label>
                 <button
@@ -235,6 +245,7 @@ export function GreetingCreator() {
                 </button>
               </div>
               <textarea
+                id="greeting-message-input"
                 rows={3}
                 maxLength={300}
                 value={message}
@@ -246,10 +257,11 @@ export function GreetingCreator() {
 
             {/* Blessing Subtitle */}
             <div>
-              <label className="block text-xs font-medium text-diwali-lavender mb-1">
+              <label htmlFor="greeting-blessing-input" className="block text-xs font-medium text-diwali-lavender mb-1">
                 Short Blessing or Sanskrit Shloka
               </label>
               <input
+                id="greeting-blessing-input"
                 type="text"
                 maxLength={60}
                 value={blessing}
@@ -295,10 +307,25 @@ export function GreetingCreator() {
 
               <button
                 onClick={handleCopyLink}
+                aria-label="Copy greeting link"
                 className="py-2.5 rounded-xl bg-diwali-surface hover:bg-diwali-surfaceLight border border-white/10 text-[11px] font-semibold text-diwali-lavender flex items-center justify-center gap-1.5 transition-colors"
               >
-                {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copiedLink ? "Link Copied!" : "Copy Greeting Link"}</span>
+                {copiedLink ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-emerald-300 font-semibold">Link Copied!</span>
+                  </>
+                ) : copyLinkFailed ? (
+                  <>
+                    <AlertCircle className="w-3.5 h-3.5 text-diwali-crimson" />
+                    <span className="text-diwali-crimson font-semibold">Copy Failed</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy Greeting Link</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

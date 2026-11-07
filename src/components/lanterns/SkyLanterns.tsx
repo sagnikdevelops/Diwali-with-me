@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Sparkles, Send, Check, Share2, Flame } from "lucide-react";
+import { Sparkles, Send, Check, Share2, Flame, AlertCircle } from "lucide-react";
 import { audioSynth } from "@/lib/audio-synth";
+import { copyToClipboard } from "@/lib/utils";
 
 export interface SkyLanternData {
   id: string;
@@ -32,6 +33,7 @@ export function SkyLanterns({ onLanternReleased }: SkyLanternsProps) {
   const [isReleasing, setIsReleasing] = useState<boolean>(false);
   const [hasReleased, setHasReleased] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+  const [copyFailed, setCopyFailed] = useState<boolean>(false);
 
   const handleRelease = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,14 +58,25 @@ export function SkyLanterns({ onLanternReleased }: SkyLanternsProps) {
     }, 2000);
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const text = `I just released a Diwali Sky Lantern with a wish for peace! 🏮✨ Release yours here: ${window.location.origin}`;
     if (navigator.share) {
-      navigator.share({ title: "Diwali Sky Lantern", text, url: window.location.origin }).catch(() => {});
+      try {
+        await navigator.share({ title: "Diwali Sky Lantern", text, url: window.location.origin });
+      } catch {
+        // Fallback or user dismiss
+      }
     } else {
-      navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      const success = await copyToClipboard(text);
+      if (success) {
+        setCopied(true);
+        setCopyFailed(false);
+        setTimeout(() => setCopied(false), 2500);
+      } else {
+        setCopyFailed(true);
+        setCopied(false);
+        setTimeout(() => setCopyFailed(false), 3000);
+      }
     }
   };
 
@@ -96,10 +109,12 @@ export function SkyLanterns({ onLanternReleased }: SkyLanternsProps) {
           {!hasReleased ? (
             <form onSubmit={handleRelease} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-diwali-lavender mb-1">
+                <label htmlFor="lantern-wish-input" className="block text-xs font-medium text-diwali-lavender mb-1">
                   Your Wish or Blessing for the World <span className="text-diwali-gold">*</span>
                 </label>
                 <textarea
+                  id="lantern-wish-input"
+                  name="lanternWish"
                   required
                   maxLength={140}
                   rows={2}
@@ -111,10 +126,12 @@ export function SkyLanterns({ onLanternReleased }: SkyLanternsProps) {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-diwali-lavender mb-1">
+                <label htmlFor="lantern-name-input" className="block text-xs font-medium text-diwali-lavender mb-1">
                   Your Name (Optional)
                 </label>
                 <input
+                  id="lantern-name-input"
+                  name="lanternName"
                   type="text"
                   maxLength={30}
                   value={name}
@@ -126,14 +143,17 @@ export function SkyLanterns({ onLanternReleased }: SkyLanternsProps) {
 
               {/* Lantern Color Style */}
               <div>
-                <label className="block text-xs font-medium text-diwali-lavender mb-2">
+                <label id="lantern-color-label" className="block text-xs font-medium text-diwali-lavender mb-2">
                   Lantern Paper Glow
                 </label>
-                <div className="grid grid-cols-4 gap-2">
+                <div role="radiogroup" aria-labelledby="lantern-color-label" className="grid grid-cols-4 gap-2">
                   {LANTERN_COLORS.map((c) => (
                     <button
                       key={c.id}
                       type="button"
+                      role="radio"
+                      aria-checked={color === c.id}
+                      aria-label={c.label}
                       onClick={() => setColor(c.id)}
                       className={`p-2 rounded-xl border flex flex-col items-center gap-1 transition-all ${
                         color === c.id
@@ -152,15 +172,17 @@ export function SkyLanterns({ onLanternReleased }: SkyLanternsProps) {
 
               {/* Consent Checkbox */}
               <div>
-                <label className="flex items-start gap-2.5 cursor-pointer text-left">
+                <label htmlFor="lantern-consent-checkbox" className="flex items-start gap-2.5 cursor-pointer text-left">
                   <input
+                    id="lantern-consent-checkbox"
+                    name="lanternConsent"
                     type="checkbox"
                     checked={isPublic}
                     onChange={(e) => setIsPublic(e.target.checked)}
                     className="mt-0.5 rounded border-diwali-gold/40 text-diwali-gold focus:ring-0 accent-diwali-gold"
                   />
                   <span className="text-[11px] text-diwali-lavender leading-tight">
-                    Display my wish in the community <strong className="text-diwali-ivory">Wish Wall</strong>.
+                    Display my wish on this browser&apos;s <strong className="text-diwali-ivory">Wish Wall</strong> (saved locally on this device).
                   </span>
                 </label>
               </div>
@@ -194,8 +216,22 @@ export function SkyLanterns({ onLanternReleased }: SkyLanternsProps) {
                   onClick={handleShare}
                   className="py-2.5 px-4 rounded-xl bg-diwali-surfaceLight hover:bg-diwali-surface border border-diwali-gold/40 text-xs font-medium text-diwali-ivory flex items-center justify-center gap-1.5 transition-colors"
                 >
-                  <Share2 className="w-4 h-4 text-diwali-gold" />
-                  <span>{copied ? "Link Copied!" : "Share the Magic"}</span>
+                  {copyFailed ? (
+                    <>
+                      <AlertCircle className="w-4 h-4 text-diwali-crimson" />
+                      <span className="text-red-300">Copy Failed</span>
+                    </>
+                  ) : copied ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-400" />
+                      <span>Link Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="w-4 h-4 text-diwali-gold" />
+                      <span>Share the Magic</span>
+                    </>
+                  )}
                 </button>
 
                 <button
@@ -247,9 +283,11 @@ export function SkyLanterns({ onLanternReleased }: SkyLanternsProps) {
             </svg>
 
             {/* Live Wish label on lantern */}
-            <div className="absolute top-12 inset-x-4 text-center px-1">
-              <p className="text-[10px] font-serif font-bold text-diwali-navy line-clamp-3 leading-tight opacity-90">
-                {wish || "May peace and health illuminate all beings"}
+            <div className="absolute top-[52px] left-[20px] right-[20px] text-center overflow-hidden" style={{ maxHeight: "52px" }}>
+              <p className="text-[8px] font-serif font-bold text-diwali-navy leading-snug opacity-90 line-clamp-4 break-words hyphens-auto">
+                {wish
+                  ? wish.length > 60 ? wish.slice(0, 57) + "…" : wish
+                  : "May peace illuminate all beings"}
               </p>
             </div>
           </div>

@@ -17,10 +17,11 @@ The **Diwali Greeting Website** is a competition-grade interactive digital sanct
 - **Configuration**: Configured for Kartik Amavasya (Deepavali) targeting `2026-11-08T18:00:00+05:30` in the `Asia/Kolkata` (IST) timezone.
 - **Resilience**: Displays Days, Hours, Minutes, and Seconds with tabular numerals. When the moment arrives or passes, it seamlessly rolls over to an auspicious celebratory banner and notes the next upcoming festival date (October 29, 2027).
 
-### 2.3 Personalised Diya & Community Wall of Light
+### 2.3 Personalised Diya & Wall of Light
 - **Lighting Flow**: Users enter their name or family dedication, pick from 5 craft styles (Terracotta, Royal Brass, Peacock Blue, Rose Quartz, Amethyst Violet), and click "Light My Diya".
 - **Animation & Audio**: The flame ignites with an animated bezier oscillation and plays an authentic pentatonic bell chime generated dynamically via the Web Audio API.
-- **Privacy & Consent**: Opt-in checkbox explicitly asks for permission to display on the public Wall of Light. Local entries can be removed at any time via a dedicated delete control.
+- **Privacy & Storage Architecture**: Implements a zero-backend, zero-cost privacy architecture. Entries are stored strictly in the visitor's browser (`localStorage`). An opt-in checkbox governs whether the entry is displayed on the browser's Wall of Light grid. When opted out, the entry is preserved only in a private devotional card with an instant extinguish/removal control and never rendered on the wall.
+- **Starter Constellation**: Pre-populated with curated starter entries to ensure an immediate celebratory atmosphere without requiring an external cloud server.
 
 ### 2.4 Interactive Rangoli Studio
 - **Dual Functionality**:
@@ -56,7 +57,7 @@ Features 6 visually distinct templates designed with authentic festive aesthetic
 
 ### 2.9 Digital Sky Lanterns & Wish Wall
 - **Interaction**: Compose a wish for the world, select lantern glow tint (Amber, Saffron, Rose, Emerald), and watch it ascend into the sky with an ethereal upward shimmer.
-- **Wish Wall**: Public community wishes displayed as floating lanterns with opt-in privacy compliance.
+- **Wish Wall**: Floating lantern cards displaying festive intentions. Operates with local browser persistence (`localStorage`) and curated starter wishes; entries opting out of the wall are held strictly in a private wish card with clear deletion controls.
 
 ### 2.10 Mystery Diwali Gift Box & Mithai Personality Quiz
 - **Mystery Box**: Interactive animated 3D-styled gift box. Unties the golden ribbon to reveal random fortunes, blessings, or festive vouchers.

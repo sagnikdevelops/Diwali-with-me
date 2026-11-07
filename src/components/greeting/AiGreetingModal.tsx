@@ -119,10 +119,12 @@ export function AiGreetingModal({
         <form onSubmit={handleGenerate} className="space-y-4">
           {/* Recipient */}
           <div>
-            <label className="block text-xs font-medium text-diwali-lavender mb-1">
+            <label htmlFor="ai-recipient-input" className="block text-xs font-medium text-diwali-lavender mb-1">
               Recipient Name
             </label>
             <input
+              id="ai-recipient-input"
+              name="aiRecipient"
               type="text"
               maxLength={40}
               value={recipient}
@@ -136,10 +138,12 @@ export function AiGreetingModal({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* Language */}
             <div>
-              <label className="block text-xs font-medium text-diwali-lavender mb-1">
+              <label htmlFor="ai-language-select" className="block text-xs font-medium text-diwali-lavender mb-1">
                 Language
               </label>
               <select
+                id="ai-language-select"
+                name="aiLanguage"
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
                 className="w-full px-2.5 py-2 rounded-xl bg-diwali-surfaceLight/80 border border-diwali-gold/30 text-xs text-diwali-ivory focus:outline-none"
@@ -154,10 +158,12 @@ export function AiGreetingModal({
 
             {/* Tone */}
             <div>
-              <label className="block text-xs font-medium text-diwali-lavender mb-1">
+              <label htmlFor="ai-tone-select" className="block text-xs font-medium text-diwali-lavender mb-1">
                 Tone
               </label>
               <select
+                id="ai-tone-select"
+                name="aiTone"
                 value={tone}
                 onChange={(e) => setTone(e.target.value)}
                 className="w-full px-2.5 py-2 rounded-xl bg-diwali-surfaceLight/80 border border-diwali-gold/30 text-xs text-diwali-ivory focus:outline-none"
@@ -172,10 +178,12 @@ export function AiGreetingModal({
 
             {/* Relationship */}
             <div>
-              <label className="block text-xs font-medium text-diwali-lavender mb-1">
+              <label htmlFor="ai-relationship-select" className="block text-xs font-medium text-diwali-lavender mb-1">
                 Relationship
               </label>
               <select
+                id="ai-relationship-select"
+                name="aiRelationship"
                 value={relationship}
                 onChange={(e) => setRelationship(e.target.value)}
                 className="w-full px-2.5 py-2 rounded-xl bg-diwali-surfaceLight/80 border border-diwali-gold/30 text-xs text-diwali-ivory focus:outline-none"
@@ -191,10 +199,12 @@ export function AiGreetingModal({
 
           {/* Optional Theme / Wish */}
           <div>
-            <label className="block text-xs font-medium text-diwali-lavender mb-1">
+            <label htmlFor="ai-theme-input" className="block text-xs font-medium text-diwali-lavender mb-1">
               Custom Memory or Topic (Optional)
             </label>
             <input
+              id="ai-theme-input"
+              name="aiTheme"
               type="text"
               maxLength={80}
               value={theme}
@@ -227,18 +237,26 @@ export function AiGreetingModal({
         {generatedText && (
           <div className="mt-6 pt-5 border-t border-diwali-gold/30 space-y-3">
             <div className="p-4 rounded-2xl bg-diwali-navy/90 border border-diwali-gold/40 shadow-inner">
-              <label className="block text-[11px] font-semibold text-diwali-goldLight uppercase tracking-wider mb-1">
+              <label htmlFor="ai-generated-message-output" className="block text-[11px] font-semibold text-diwali-goldLight uppercase tracking-wider mb-1 cursor-pointer">
                 Generated Message (Editable)
               </label>
               <textarea
+                id="ai-generated-message-output"
+                name="aiGeneratedMessage"
+                aria-label="Generated Message Editable Text"
                 rows={3}
                 value={generatedText}
                 onChange={(e) => setGeneratedText(e.target.value)}
                 className="w-full bg-transparent text-xs text-diwali-ivory focus:outline-none resize-none leading-relaxed"
               />
               <div className="mt-2 pt-2 border-t border-white/10 flex justify-between items-center text-xs">
-                <span className="text-diwali-lavender">Blessing Sign-off:</span>
+                <label htmlFor="ai-generated-blessing-output" className="text-diwali-lavender cursor-pointer">
+                  Blessing Sign-off:
+                </label>
                 <input
+                  id="ai-generated-blessing-output"
+                  name="aiGeneratedBlessing"
+                  aria-label="Generated Blessing Sign-off"
                   type="text"
                   value={generatedBlessing}
                   onChange={(e) => setGeneratedBlessing(e.target.value)}

@@ -141,14 +141,17 @@ export function PhotoGreeting() {
           {/* Photo Zoom Control */}
           {imageSrc && (
             <div className="pt-2">
-              <div className="flex justify-between text-xs text-diwali-lavender mb-1">
+              <label htmlFor="photo-zoom-slider" className="flex justify-between text-xs text-diwali-lavender mb-1 cursor-pointer">
                 <span>Reposition / Zoom Scale</span>
                 <span className="text-diwali-goldLight">{Math.round(scale * 100)}%</span>
-              </div>
+              </label>
               <div className="flex items-center gap-3">
                 <ZoomOut className="w-4 h-4 text-diwali-lavender" />
                 <input
+                  id="photo-zoom-slider"
+                  name="photoZoomScale"
                   type="range"
+                  aria-label="Photo Zoom Scale"
                   min="0.5"
                   max="2.5"
                   step="0.05"
@@ -163,13 +166,17 @@ export function PhotoGreeting() {
 
           {/* Frame Style Picker */}
           <div>
-            <label className="block text-xs font-semibold text-diwali-goldLight uppercase tracking-wider mb-2">
+            <div id="photo-frame-label" className="block text-xs font-semibold text-diwali-goldLight uppercase tracking-wider mb-2">
               2. Choose Festive Frame
-            </label>
-            <div className="grid grid-cols-2 gap-2.5">
+            </div>
+            <div role="radiogroup" aria-labelledby="photo-frame-label" className="grid grid-cols-2 gap-2.5">
               {FRAMES.map((f) => (
                 <button
                   key={f.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={frame === f.id}
+                  aria-label={f.label}
                   onClick={() => setFrame(f.id)}
                   className={`p-3 rounded-2xl border text-left flex items-center gap-2.5 transition-all ${
                     frame === f.id
@@ -187,10 +194,12 @@ export function PhotoGreeting() {
           {/* Text fields */}
           <div className="space-y-3 pt-2 border-t border-diwali-gold/20">
             <div>
-              <label className="block text-xs font-medium text-diwali-lavender mb-1">
+              <label htmlFor="photo-recipient-input" className="block text-xs font-medium text-diwali-lavender mb-1">
                 For (Recipient)
               </label>
               <input
+                id="photo-recipient-input"
+                name="photoRecipient"
                 type="text"
                 maxLength={40}
                 value={recipient}
@@ -201,10 +210,12 @@ export function PhotoGreeting() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-diwali-lavender mb-1">
+              <label htmlFor="photo-caption-input" className="block text-xs font-medium text-diwali-lavender mb-1">
                 Custom Caption
               </label>
               <input
+                id="photo-caption-input"
+                name="photoCaption"
                 type="text"
                 maxLength={90}
                 value={caption}
@@ -215,10 +226,12 @@ export function PhotoGreeting() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-diwali-lavender mb-1">
+              <label htmlFor="photo-sender-input" className="block text-xs font-medium text-diwali-lavender mb-1">
                 From (Sender)
               </label>
               <input
+                id="photo-sender-input"
+                name="photoSender"
                 type="text"
                 maxLength={40}
                 value={sender}
@@ -258,11 +271,88 @@ export function PhotoGreeting() {
               <div className="absolute inset-2 border border-[#D4AF37]/40 rounded-2xl pointer-events-none" />
 
               {/* Decorative Frame Elements */}
+
+              {/* Royal Arch – top arch SVG */}
               {frame === "royal-arch" && (
-                <div className="absolute top-2 inset-x-4 h-12 flex justify-center pointer-events-none">
+                <div className="absolute top-2 inset-x-4 h-12 flex justify-center pointer-events-none z-20">
                   <svg viewBox="0 0 200 40" className="w-full h-full stroke-[#D4AF37] fill-none" strokeWidth="1.5">
                     <path d="M0,40 Q50,0 100,20 Q150,0 200,40" />
                     <circle cx="100" cy="18" r="3" fill="#D4AF37" />
+                    <circle cx="20" cy="38" r="2" fill="#D4AF37" />
+                    <circle cx="180" cy="38" r="2" fill="#D4AF37" />
+                  </svg>
+                </div>
+              )}
+
+              {/* Marigold Wreath – corner marigold blossoms */}
+              {frame === "marigold-wreath" && (
+                <div className="absolute inset-0 pointer-events-none z-20">
+                  {/* Top-left blossom */}
+                  <svg viewBox="0 0 50 50" className="absolute top-1 left-1 w-14 h-14 opacity-80">
+                    {[0,45,90,135,180,225,270,315].map((deg, i) => (
+                      <ellipse key={i} cx="25" cy="13" rx="4" ry="8" fill="#FF8C00"
+                        transform={`rotate(${deg} 25 25)`} opacity="0.85" />
+                    ))}
+                    <circle cx="25" cy="25" r="5" fill="#FFB547" />
+                  </svg>
+                  {/* Top-right blossom */}
+                  <svg viewBox="0 0 50 50" className="absolute top-1 right-1 w-14 h-14 opacity-80 scale-x-[-1]">
+                    {[0,45,90,135,180,225,270,315].map((deg, i) => (
+                      <ellipse key={i} cx="25" cy="13" rx="4" ry="8" fill="#FF8C00"
+                        transform={`rotate(${deg} 25 25)`} opacity="0.85" />
+                    ))}
+                    <circle cx="25" cy="25" r="5" fill="#FFB547" />
+                  </svg>
+                  {/* Bottom-left blossom */}
+                  <svg viewBox="0 0 50 50" className="absolute bottom-1 left-1 w-14 h-14 opacity-80 scale-y-[-1]">
+                    {[0,45,90,135,180,225,270,315].map((deg, i) => (
+                      <ellipse key={i} cx="25" cy="13" rx="4" ry="8" fill="#FF8C00"
+                        transform={`rotate(${deg} 25 25)`} opacity="0.85" />
+                    ))}
+                    <circle cx="25" cy="25" r="5" fill="#FFB547" />
+                  </svg>
+                  {/* Bottom-right blossom */}
+                  <svg viewBox="0 0 50 50" className="absolute bottom-1 right-1 w-14 h-14 opacity-80 scale-x-[-1] scale-y-[-1]">
+                    {[0,45,90,135,180,225,270,315].map((deg, i) => (
+                      <ellipse key={i} cx="25" cy="13" rx="4" ry="8" fill="#FF8C00"
+                        transform={`rotate(${deg} 25 25)`} opacity="0.85" />
+                    ))}
+                    <circle cx="25" cy="25" r="5" fill="#FFB547" />
+                  </svg>
+                </div>
+              )}
+
+              {/* Glowing Diyas – row of diya silhouettes along the bottom */}
+              {frame === "glowing-diyas" && (
+                <div className="absolute bottom-10 inset-x-0 pointer-events-none z-20 flex justify-center gap-3 px-4">
+                  {[0,1,2,3,4].map((i) => (
+                    <svg key={i} viewBox="0 0 30 36" className="w-6 h-7 drop-shadow-[0_0_6px_#FFB547]">
+                      {/* bowl */}
+                      <ellipse cx="15" cy="26" rx="13" ry="6" fill="#8B4513" stroke="#D4AF37" strokeWidth="1" />
+                      {/* oil */}
+                      <ellipse cx="15" cy="24" rx="9" ry="3.5" fill="#FFB547" opacity="0.6" />
+                      {/* flame */}
+                      <path d="M15,18 Q19,10 15,4 Q11,10 15,18" fill="#FFB547" opacity="0.9" />
+                      <path d="M15,16 Q17,11 15,7 Q13,11 15,16" fill="#FFF6E5" />
+                    </svg>
+                  ))}
+                </div>
+              )}
+
+              {/* Velvet Gold – thick decorative corner brackets */}
+              {frame === "velvet-gold" && (
+                <div className="absolute inset-0 pointer-events-none z-20">
+                  <svg viewBox="0 0 300 400" className="absolute inset-0 w-full h-full" fill="none">
+                    {/* corner L-brackets */}
+                    <path d="M12,40 L12,12 L40,12" stroke="#D4AF37" strokeWidth="3" strokeLinecap="round" />
+                    <path d="M260,12 L288,12 L288,40" stroke="#D4AF37" strokeWidth="3" strokeLinecap="round" />
+                    <path d="M12,360 L12,388 L40,388" stroke="#D4AF37" strokeWidth="3" strokeLinecap="round" />
+                    <path d="M260,388 L288,388 L288,360" stroke="#D4AF37" strokeWidth="3" strokeLinecap="round" />
+                    {/* subtle inner frame */}
+                    <rect x="18" y="18" width="264" height="364" rx="10" stroke="#D4AF37" strokeWidth="0.75" strokeDasharray="6 4" opacity="0.5" />
+                    {/* center-top jewel */}
+                    <circle cx="150" cy="14" r="4" fill="#54258C" stroke="#D4AF37" strokeWidth="1.5" />
+                    <circle cx="150" cy="14" r="2" fill="#D4AF37" />
                   </svg>
                 </div>
               )}
