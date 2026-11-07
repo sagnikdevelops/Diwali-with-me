@@ -53,6 +53,10 @@ src/
 │       └── generate-greeting/
 │           └── route.ts          # Server-side Gemini AI generation with rate limiting & fallback
 ├── components/
+│   ├── header/
+│   │   └── FestiveHeader.tsx     # Interactive header with scroll progress, active section spy & sweet switcher
+│   ├── footer/
+│   │   └── FestiveFooter.tsx     # Signature footer with sacred shloka, center diya & Sagnik Dutta copyright
 │   ├── audio/
 │   │   ├── AudioManager.tsx      # Web Audio API synthesiser + Ambient BGM Player
 │   │   └── AudioBar.tsx          # Fixed floating audio controller (mute, volume, sound fx)
