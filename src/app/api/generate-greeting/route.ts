@@ -1,15 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findCuratedGreeting } from "@/config/ai-fallbacks";
+import { parseGreetingRequest } from "@/lib/greeting-request";
 
 export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const recipient = String(body.recipient || "Friend").slice(0, 50);
-    const language = String(body.language || "English").slice(0, 30);
-    const tone = String(body.tone || "Warm & Heartfelt").slice(0, 40);
-    const relationship = String(body.relationship || "Family").slice(0, 40);
-    const theme = String(body.theme || "").slice(0, 100);
+  let body: unknown;
 
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "Request body must contain valid JSON." },
+      { status: 400 }
+    );
+  }
+
+  const parsedRequest = parseGreetingRequest(body);
+  if (!parsedRequest.ok) {
+    return NextResponse.json(
+      { success: false, error: parsedRequest.error },
+      { status: 400 }
+    );
+  }
+
+  const { recipient, language, tone, relationship, theme } = parsedRequest.data;
+
+  try {
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
@@ -86,14 +101,13 @@ Do not wrap in markdown or backticks. Return pure JSON only.`;
   } catch (error) {
     console.error("AI Greeting API error:", error);
     // Safe graceful degradation
-    const curated = findCuratedGreeting("Friend", "English", "Warm & Heartfelt", "Family");
+    const curated = findCuratedGreeting(recipient, language, tone, relationship);
     return NextResponse.json({
       success: true,
       message: curated.message,
       blessing: curated.blessing,
       source: "curated_fallback",
-      error: "Switched to verified offline catalog.",
+      note: "AI generation was unavailable. Loaded a personalized greeting from the offline catalog.",
     });
   }
 }
-

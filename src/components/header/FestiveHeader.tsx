@@ -216,6 +216,8 @@ export function FestiveHeader({
             }}
             className="lg:hidden p-2 text-diwali-lavender hover:text-white rounded-lg bg-diwali-surface/60 border border-white/10 hover:border-diwali-gold/40 transition-colors"
             aria-label="Toggle navigation menu"
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-navigation-menu"
           >
             {isMobileMenuOpen ? <X className="w-4 h-4 text-diwali-gold" /> : <Menu className="w-4 h-4" />}
           </button>
@@ -223,7 +225,10 @@ export function FestiveHeader({
       </div>
 
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-diwali-midnight/98 border-b border-diwali-gold/30 backdrop-blur-2xl px-4 py-4 shadow-2xl animate-in slide-in-from-top-4 duration-200">
+        <div
+          id="mobile-navigation-menu"
+          className="lg:hidden bg-diwali-midnight/98 border-b border-diwali-gold/30 backdrop-blur-2xl px-4 py-4 shadow-2xl animate-in slide-in-from-top-4 duration-200"
+        >
           <div className="grid grid-cols-2 gap-2 mb-3">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
@@ -277,4 +282,3 @@ export function FestiveHeader({
     </header>
   );
 }
-

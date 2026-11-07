@@ -1,118 +1,153 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
+import ts from "typescript";
 
-// Test QA-03: Share Data Codec
-test("QA-03: decodeGreetingData handles valid, missing, and malformed data safely", async () => {
-  // Test with pure implementation or import
-  function decodeGreetingData(encoded) {
-    if (!encoded) return null;
-    try {
-      const base64Pattern = /^[A-Za-z0-9+/=_\-%]+$/;
-      if (!base64Pattern.test(encoded)) {
-        return null;
-      }
-      const jsonStr = decodeURIComponent(atob(encoded));
-      const parsed = JSON.parse(jsonStr);
-      if (!parsed || typeof parsed !== "object" || !parsed.recipient) {
-        return null;
-      }
-      return parsed;
-    } catch {
-      return null;
-    }
-  }
+function loadTypeScriptModule(relativePath) {
+  const modulePath = path.resolve(relativePath);
+  const source = fs.readFileSync(modulePath, "utf-8");
+  const compiled = ts.transpileModule(source, {
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2020,
+    },
+  }).outputText;
+  const loadedModule = { exports: {} };
 
-  function encodeGreetingData(card) {
-    const jsonStr = JSON.stringify(card);
-    return btoa(encodeURIComponent(jsonStr));
-  }
+  new Function("exports", "require", "module", compiled)(
+    loadedModule.exports,
+    createRequire(modulePath),
+    loadedModule
+  );
+  return loadedModule.exports;
+}
 
-  // 1. Missing / empty data returns null
-  assert.equal(decodeGreetingData(""), null);
-  assert.equal(decodeGreetingData(null), null);
-  assert.equal(decodeGreetingData(undefined), null);
+const { decodeGreetingData, encodeGreetingData } = loadTypeScriptModule("src/lib/share-codec.ts");
+const { copyToClipboard } = loadTypeScriptModule("src/lib/utils.ts");
+const { parseGreetingRequest } = loadTypeScriptModule("src/lib/greeting-request.ts");
 
-  // 2. Malformed / invalid inputs return null without throwing
-  assert.equal(decodeGreetingData("not-valid-base64@@@###"), null);
-  assert.equal(decodeGreetingData("12345"), null);
-  assert.equal(decodeGreetingData("bm90LWpzb24="), null); // "not-json" base64
-  assert.equal(decodeGreetingData(btoa(JSON.stringify({ notCard: true }))), null);
-
-  // 3. Valid round-trip encoding
+test("QA-03: the share codec round-trips real payloads and safely rejects malformed data", () => {
   const sampleCard = {
-    template: "royal-traditional",
-    recipient: "Priya & Family",
+    template: "spiritual",
+    recipient: "Priya & परिवार",
     sender: "Sagnik",
     message: "May this Diwali bring boundless joy and auspicious prosperity!",
-    blessing: "Shubh Deepavali!",
+    blessing: "शुभ दीपावली!",
   };
-  const encoded = encodeGreetingData(sampleCard);
-  const decoded = decodeGreetingData(encoded);
-  assert.deepEqual(decoded, sampleCard);
+  const decoded = decodeGreetingData(encodeGreetingData(sampleCard));
+
+  assert.equal(decoded?.recipient, sampleCard.recipient);
+  assert.equal(decoded?.sender, sampleCard.sender);
+  assert.equal(decoded?.message, sampleCard.message);
+  assert.equal(decoded?.blessing, sampleCard.blessing);
+  assert.equal(decoded?.template, sampleCard.template);
+  assert.equal(decodeGreetingData(""), null);
+  assert.equal(decodeGreetingData("not-valid-base64@@@###"), null);
+  assert.equal(decodeGreetingData("bm90LWpzb24="), null);
 });
 
-// Test QA-01: Consent Filtering for Wall of Light & Wish Wall
-test("QA-01: Consent filtering strictly excludes opt-out (isPublic: false) entries", () => {
-  const allDiyas = [
-    { id: "1", name: "Aarav", isPublic: true },
-    { id: "2", name: "Secret Devotee", isPublic: false },
-    { id: "3", name: "Pooja", isPublic: true },
-    { id: "4", name: "Private Wish", isPublic: false },
-  ];
+test("API validation rejects invalid input and bounds valid greeting fields", () => {
+  assert.deepEqual(parseGreetingRequest([]), {
+    ok: false,
+    error: "Request body must be a JSON object.",
+  });
+  assert.deepEqual(parseGreetingRequest({ recipient: 42 }), {
+    ok: false,
+    error: '"recipient" must be a string.',
+  });
 
-  // Wall filter rule
-  const publicDiyas = allDiyas.filter((d) => d.isPublic === true);
-  assert.equal(publicDiyas.length, 2);
-  assert.equal(publicDiyas.some((d) => d.id === "2"), false);
-  assert.equal(publicDiyas.some((d) => d.id === "4"), false);
-
-  const allWishes = [
-    { id: "w1", wish: "Peace for world", isPublic: true },
-    { id: "w2", wish: "Secret private wish", isPublic: false },
-  ];
-  const publicWishes = allWishes.filter((w) => w.isPublic === true);
-  assert.equal(publicWishes.length, 1);
-  assert.equal(publicWishes[0].id, "w1");
+  const result = parseGreetingRequest({
+    recipient: ` ${"A".repeat(60)} `,
+    language: "Hindi",
+    theme: "  light  ",
+  });
+  assert.deepEqual(result, {
+    ok: true,
+    data: {
+      recipient: "A".repeat(50),
+      language: "Hindi",
+      tone: "Warm & Heartfelt",
+      relationship: "Family",
+      theme: "light",
+    },
+  });
 });
 
-// Test QA-04: Clipboard Safe Copy Utility
-test("QA-04: copyToClipboard function gracefully handles rejection without crashing", async () => {
-  // Emulate copyToClipboard logic
-  async function copyToClipboard(text, mockNavigator) {
-    if (mockNavigator?.clipboard?.writeText) {
-      try {
-        await mockNavigator.clipboard.writeText(text);
-        return true;
-      } catch {
-        return false;
+test("QA-01: both walls filter restored entries by explicit public consent", () => {
+  const diyaWall = fs.readFileSync(path.resolve("src/components/diya/WallOfLight.tsx"), "utf-8");
+  const wishWall = fs.readFileSync(path.resolve("src/components/lanterns/WishWall.tsx"), "utf-8");
+
+  assert.match(diyaWall, /parsed\.filter\(\(d\) => d\.isPublic === true/);
+  assert.match(wishWall, /parsed\.filter\(\(w\) => w\.isPublic === true/);
+  assert.match(diyaWall, /if \(newDiya\.isPublic\)/);
+  assert.match(wishWall, /if \(lantern\.isPublic\)/);
+});
+
+test("QA-04: the clipboard utility uses the Clipboard API and falls back to legacy copy", async () => {
+  const originalGlobals = new Map(
+    ["window", "navigator", "document"].map((key) => [
+      key,
+      Object.getOwnPropertyDescriptor(globalThis, key),
+    ])
+  );
+  const setGlobal = (key, value) => {
+    Object.defineProperty(globalThis, key, {
+      configurable: true,
+      value,
+      writable: true,
+    });
+  };
+
+  try {
+    let copiedText;
+    setGlobal("window", {});
+    setGlobal("navigator", {
+      clipboard: {
+        writeText: async (text) => {
+          copiedText = text;
+        },
+      },
+    });
+    assert.equal(await copyToClipboard("https://diwali.test"), true);
+    assert.equal(copiedText, "https://diwali.test");
+
+    let removed = false;
+    setGlobal("navigator", {
+      clipboard: {
+        writeText: async () => {
+          throw new Error("Clipboard permission denied");
+        },
+      },
+    });
+    setGlobal("document", {
+      createElement: () => ({
+        value: "",
+        style: {},
+        setAttribute() {},
+        focus() {},
+        select() {},
+      }),
+      body: {
+        appendChild() {},
+        removeChild() {
+          removed = true;
+        },
+      },
+      execCommand: () => true,
+    });
+    assert.equal(await copyToClipboard("https://diwali.test"), true);
+    assert.equal(removed, true);
+  } finally {
+    for (const [key, descriptor] of originalGlobals) {
+      if (descriptor) {
+        Object.defineProperty(globalThis, key, descriptor);
+      } else {
+        delete globalThis[key];
       }
     }
-    return false;
   }
-
-  // 1. Success case
-  const mockSuccessNavigator = {
-    clipboard: {
-      writeText: async (t) => {
-        assert.equal(t, "https://diwali.test");
-      },
-    },
-  };
-  const success = await copyToClipboard("https://diwali.test", mockSuccessNavigator);
-  assert.equal(success, true);
-
-  // 2. Rejection / Permission Denied case
-  const mockRejectNavigator = {
-    clipboard: {
-      writeText: async () => {
-        throw new Error("NotAllowedError: Document is not focused or clipboard permission denied");
-      },
-    },
-  };
-  const failure = await copyToClipboard("https://diwali.test", mockRejectNavigator);
-  assert.equal(failure, false);
 });
 
 // Test QA-05: Form Accessibility & Label Association Verification
@@ -124,6 +159,7 @@ test("QA-05: Core components have explicit id, htmlFor, and aria-labels on form 
     "src/components/greeting/AiGreetingModal.tsx",
     "src/components/lanterns/SkyLanterns.tsx",
     "src/components/rangoli/RangoliStudio.tsx",
+    "src/components/header/FestiveHeader.tsx",
   ];
 
   for (const compPath of components) {
@@ -138,6 +174,11 @@ test("QA-05: Core components have explicit id, htmlFor, and aria-labels on form 
       `Component ${compPath} must use programmatic labelling (htmlFor or aria-label)`
     );
   }
+
+  const header = fs.readFileSync(path.resolve("src/components/header/FestiveHeader.tsx"), "utf-8");
+  assert.match(header, /aria-expanded=\{isMobileMenuOpen\}/);
+  assert.match(header, /aria-controls="mobile-navigation-menu"/);
+  assert.match(header, /id="mobile-navigation-menu"/);
 });
 
 // Test Audio Assets Presence & Integrity
@@ -159,7 +200,7 @@ test("Audio Assets: All required background music tracks and sound effects exist
 });
 
 // Test Fireworks & Audio Autoplay Configuration
-test("User Experience: Auto-fireworks disabled, reacts on hover/click; Music autoplays on visit", () => {
+test("User Experience: fireworks are interactive; ambient music autoplays with gesture fallback", () => {
   const fwPath = path.resolve("src/components/fireworks/FireworksCanvas.tsx");
   const fwContent = fs.readFileSync(fwPath, "utf-8");
 
@@ -172,9 +213,11 @@ test("User Experience: Auto-fireworks disabled, reacts on hover/click; Music aut
   const audioPath = path.resolve("src/components/audio/AudioBar.tsx");
   const audioContent = fs.readFileSync(audioPath, "utf-8");
 
-  // AudioBar must have automatic autoplay and preload auto
-  assert.equal(audioContent.includes("tryAutoPlay"), true, "AudioBar must attempt automatic autoplay on visit");
+  assert.match(audioContent, /const tryAutoPlay = \(\) =>/);
+  assert.match(audioContent, /tryAutoPlay\(\);/);
+  assert.match(audioContent, /window\.addEventListener\("click", tryAutoPlay/);
+  assert.match(audioContent, /userExplicitlyPausedRef\.current = true/);
+  assert.match(audioContent, /const togglePlay = \(\) =>/);
+  assert.match(audioContent, /aria-label=\{isPlaying \? "Pause music" : "Play music"\}/);
   assert.equal(audioContent.includes('preload="auto"'), true, "AudioBar must have preload=auto for instant playback");
 });
-
-

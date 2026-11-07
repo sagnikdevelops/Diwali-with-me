@@ -7,7 +7,7 @@
 - **Node.js**: v26.12.1
 - **Package Manager**: npm 11.20.0
 - **Framework**: Next.js 16.4.5 / React 19.0.0 / TypeScript 5.7.3
-- **Test Runner**: Node Native Test Runner (`node --test tests/*.test.mjs`) — 5/5 Passing
+- **Test Runner**: Node Native Test Runner (`node --test tests/*.test.mjs`) — 7/7 Passing
 - **Linter**: ESLint 9 Flat Config (`eslint.config.mjs`) — 0 errors, 0 warnings
 - **Browser Runtime**: Chromium Engine / Microsoft Edge (Headless & Interactive)
 - **Server Ports Tested**: `http://localhost:3000` (Production Build & SSR)
@@ -58,7 +58,7 @@
 | **QA-37** | Unique Share Link | Base64URL codec | Open `/share?data=<encoded>` | Decodes recipient, sender, message, and renders exact card | **PASS** |
 | **QA-38** | Unique Share Link | Recipient Diya response | Click "Light a Diya in Return" | Renders glowing diya dedicated to original sender | **PASS** |
 | **QA-39** | Unique Share Link | Empty data param | Open `/share` with no query param | Gracefully renders default welcoming card with no crash | **PASS** |
-| **QA-40** | Audio System | No-autoplay enforcement | Initial page load | Audio does not autoplay; user must click play | **PASS** |
+| **QA-40** | Audio System | Ambient music autoplay | Initial page load; first user gesture if autoplay is blocked | Music starts automatically when browser policy allows; Play remains available as fallback | **PASS** |
 | **QA-41** | Audio System | Web Audio Synth SFX | Trigger diya/firework/lantern | Synthesizes bell chimes and pops with zero external audio files | **PASS** |
 | **QA-42** | Responsive Layout | Mobile (375px) & Tablet (768px) | Viewport resize | No horizontal scroll, hamburger menu toggles, comfortable tap targets | **PASS** |
 | **QA-43** | Accessibility | Keyboard navigation | Tab / Space / Enter keys | All buttons and modals accessible via keyboard | **PASS** |

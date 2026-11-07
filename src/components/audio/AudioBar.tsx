@@ -44,50 +44,6 @@ export function AudioBar() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const userExplicitlyPausedRef = useRef<boolean>(false);
 
-  // Auto-play music automatically when user visits the website
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    let hasStarted = false;
-
-    const tryAutoPlay = () => {
-      if (hasStarted || userExplicitlyPausedRef.current || !audio) return;
-      audio.volume = isMuted ? 0 : volume;
-      audio
-        .play()
-        .then(() => {
-          hasStarted = true;
-          setIsPlaying(true);
-          setHasAudioFileError(false);
-          cleanupGestureListeners();
-        })
-        .catch(() => {
-          // Autoplay blocked by browser policy until user interacts with the page
-        });
-    };
-
-    const cleanupGestureListeners = () => {
-      window.removeEventListener("click", tryAutoPlay);
-      window.removeEventListener("pointerdown", tryAutoPlay);
-      window.removeEventListener("keydown", tryAutoPlay);
-      window.removeEventListener("touchstart", tryAutoPlay);
-    };
-
-    // 1. Try immediate autoplay
-    tryAutoPlay();
-
-    // 2. Play automatically on the very first user interaction anywhere on the site
-    window.addEventListener("click", tryAutoPlay, { passive: true });
-    window.addEventListener("pointerdown", tryAutoPlay, { passive: true });
-    window.addEventListener("keydown", tryAutoPlay, { passive: true });
-    window.addEventListener("touchstart", tryAutoPlay, { passive: true });
-
-    return () => {
-      cleanupGestureListeners();
-    };
-  }, [isMuted, volume]);
-
   useEffect(() => {
     // Keep Web Audio synth in sync with user state
     audioSynth.setMuted(isMuted);
@@ -99,6 +55,46 @@ export function AudioBar() {
       audioRef.current.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    let hasStarted = false;
+    let isAttempting = false;
+
+    const cleanupGestureListeners = () => {
+      window.removeEventListener("click", tryAutoPlay);
+      window.removeEventListener("pointerdown", tryAutoPlay);
+      window.removeEventListener("keydown", tryAutoPlay);
+      window.removeEventListener("touchstart", tryAutoPlay);
+    };
+
+    const tryAutoPlay = () => {
+      if (hasStarted || isAttempting || userExplicitlyPausedRef.current) return;
+
+      isAttempting = true;
+      audio.play()
+        .then(() => {
+          hasStarted = true;
+          isAttempting = false;
+          setIsPlaying(true);
+          setHasAudioFileError(false);
+          cleanupGestureListeners();
+        })
+        .catch(() => {
+          isAttempting = false;
+        });
+    };
+
+    tryAutoPlay();
+    window.addEventListener("click", tryAutoPlay, { passive: true });
+    window.addEventListener("pointerdown", tryAutoPlay, { passive: true });
+    window.addEventListener("keydown", tryAutoPlay, { passive: true });
+    window.addEventListener("touchstart", tryAutoPlay, { passive: true });
+
+    return cleanupGestureListeners;
+  }, []);
 
   const togglePlay = () => {
     if (!audioRef.current) return;
@@ -290,4 +286,3 @@ export function AudioBar() {
     </div>
   );
 }
-

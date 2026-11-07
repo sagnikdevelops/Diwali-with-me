@@ -6,15 +6,17 @@
 
 ## Executive summary
 
-All six reported QA issues (QA-01 through QA-06) as well as UI and audio synchronization enhancements have been thoroughly diagnosed, repaired, and verified with automated test suites, type checking, and production builds:
+All six previously reported QA issues (QA-01 through QA-06), plus regressions found during the current browser pass, have been diagnosed, repaired, and verified with automated tests, type checking, production builds, and interactive browser checks:
 
 1. **Consent Opt-Out:** Opted-out Diyas and Lanterns are strictly excluded from public celebration walls and held safely in private devotional cards with clear/delete controls.
 2. **Local Wall Contract Disclosures:** Wall headings, descriptions, and project documentation explicitly disclose browser-local (`localStorage`) persistence.
 3. **Malformed Share Links:** `/share?data=...` safely decodes URL payloads; invalid or altered data renders an informative "Invalid or Incomplete Link" screen with a return CTA, rather than silently masquerading as a default card.
 4. **Clipboard Robustness:** All five copy/share buttons across the site (`/share`, Greeting Creator, Diya Light Modal, Sky Lanterns, Festive Quiz) use async error handling with visible "Copy Failed" fallback alerts.
 5. **Accessibility Form Labels:** 100% of inputs, selects, textareas, and sliders now have programmatic `<label htmlFor="...">` and ARIA attributes (`aria-label`, `aria-labelledby`, `role="radiogroup"`).
-6. **Linting & Test Suite:** Next.js 16-compatible ESLint flat config (`eslint.config.mjs`) passes cleanly with 0 errors; native automated regression test suite (`tests/qa-regression.test.mjs`) passes 5/5 tests in ~280ms.
-7. **Audio & Diya Synchronization:** Custom ambient music playlist configured; authentic match-strike sound (`diya-light.mp3` / `diya-light.wav`) is precisely synchronized with flame ignition.
+6. **Linting & Test Suite:** Next.js 16-compatible ESLint flat config (`eslint.config.mjs`) passes cleanly; native regression tests exercise the real share codec and clipboard utility.
+7. **Audio & Diya Synchronization:** Ambient music autoplay is retained, with a first-interaction retry when browser policy blocks it; authentic match-strike sound (`diya-light.mp3` / `diya-light.wav`) is synchronized with flame ignition.
+8. **Mobile Navigation State:** The responsive menu now exposes its expanded/collapsed state and controls its navigation panel for assistive technology.
+9. **Greeting API Input Validation:** Malformed JSON, non-object bodies, and non-string fields return an explicit HTTP 400 response instead of a generic success-shaped fallback.
 
 ---
 
@@ -113,7 +115,44 @@ All six reported QA issues (QA-01 through QA-06) as well as UI and audio synchro
 **Fix Applied & Verified:**
 - Replaced incompatible `next lint` with ESLint 9 flat configuration in `eslint.config.mjs` using `@eslint/js`, `@next/eslint-plugin-next`, and `@typescript-eslint/parser`.
 - Added `"lint": "eslint ."` in `package.json`; executes cleanly with **0 errors, 0 warnings**.
-- Added `"test": "node --test tests/*.test.mjs"` in `package.json`; executes native regression suite with **5 passing tests in 280ms**.
+- Added `"test": "node --test tests/*.test.mjs"` in `package.json`; executes the native regression suite.
+
+---
+
+### QA-07 - Restoring ambient music autoplay
+
+**Status:** RESTORED PER PRODUCT DIRECTION
+**Priority:** P2
+**Severity:** N/A (intended feature)
+**Affected area:** Audio Bar
+
+**Behavior Applied & Verified:**
+- Automatically attempts playback on page load and retries on the first click, pointer, key, or touch interaction if the browser blocks autoplay.
+- Keeps the labelled Play/Pause control and prevents autoplay from restarting after the user explicitly pauses.
+- Browser autoplay policies can still require an initial interaction; the retry listener preserves the intended behavior in those browsers.
+
+### QA-08 - Mobile menu state was not exposed to assistive technology
+
+**Status:** FIXED
+**Priority:** P3
+**Severity:** Low (navigation accessibility)
+**Affected area:** Festive Header
+
+**Fix Applied & Verified:**
+- Added `aria-expanded` and `aria-controls` to the mobile menu toggle and associated the controlled navigation panel.
+- Verified the menu opens and closes, updates its expanded state, and navigates to the selected section.
+
+### QA-09 - Invalid greeting API requests returned a success response
+
+**Status:** FIXED
+**Priority:** P2
+**Severity:** Medium (API contract)
+**Affected area:** `POST /api/generate-greeting`
+
+**Fix Applied & Verified:**
+- Reject malformed JSON, non-object bodies, and non-string input fields with HTTP 400 and a clear error.
+- Preserve curated fallback behavior for valid requests when AI generation is unavailable, using the requested recipient and preferences.
+- Verified the API returns the expected curated response for valid inputs.
 
 ---
 
@@ -124,7 +163,7 @@ All six reported QA issues (QA-01 through QA-06) as well as UI and audio synchro
 | **Production build** | **PASS** | `npm run build` compiled `/`, `/share`, and `/api/generate-greeting` without errors. |
 | **TypeScript** | **PASS** | `npx tsc --noEmit` completed with 0 type errors. |
 | **Lint** | **PASS** | `npm run lint` passes with 0 errors and 0 warnings. |
-| **Regression Test Suite** | **PASS** | `npm test` runs 5 test suites covering QA-01, QA-03, QA-04, QA-05, and audio assets; 100% PASS. |
+| **Regression Test Suite** | **PASS** | `npm test` runs 7 suites covering the real share codec, greeting input validation, clipboard utility, consent filtering, form labels, audio assets, and autoplay behavior. |
 | **Intro & Sweet Selection** | **PASS** | Welcome sequence with synchronized diya ignition; sweet preference modal functions smoothly every session. |
 | **Header & Navigation** | **PASS** | Decluttered, compact header (`h-14`), responsive drawer, active section highlighting, surprise trigger. |
 | **Diya Lighting & Wall of Light** | **PASS** | Preview displays unlit diya; clicking "Light My Diya" plays match-strike audio (`diya-light.wav`/`.mp3`); flame ignites at exact moment; opt-out entries excluded from public grid. |
@@ -136,7 +175,7 @@ All six reported QA issues (QA-01 through QA-06) as well as UI and audio synchro
 | **Mystery Gift** | **PASS** | Unbox animation reveals authentic Sanskrit blessing and English translation; replay control. |
 | **Festive Quiz** | **PASS** | 3-question mithai personality test; result share button with rejection safety; retake action. |
 | **Share Route (`/share`)** | **PASS** | Valid payload decodes; missing param shows preview; malformed payload renders informative invalid link screen. |
-| **Audio Controls & Background Tracks** | **PASS** | Ambient tracks (`festive-sitar.mp3`, `bansuri-flute.mp3`, `santoor-celebration.mp3`) installed in `public/audio/`; volume and mute controls work cleanly. |
+| **Audio Controls & Background Tracks** | **PASS** | Ambient tracks (`festive-sitar.mp3`, `bansuri-flute.mp3`, `santoor-celebration.mp3`) installed in `public/audio/`; music autoplays when permitted, retries after first interaction when blocked, and retains volume, mute, and Play/Pause controls. |
 | **Footer & Attribution** | **PASS** | Sacred shloka; "Sagnik Dutta" hyperlinked to `https://www.linkedin.com/in/sagnikduttahere/`; smooth scroll-to-top. |
 
 ---
