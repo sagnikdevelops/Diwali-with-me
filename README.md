@@ -1,4 +1,4 @@
-# 🪔 Shubh Deepavali
+# 🪔 Diwali with Me!
 
 **✨ A festive, browser-first Diwali experience for creating greetings, sharing good wishes, and celebrating the Festival of Lights.**
 
