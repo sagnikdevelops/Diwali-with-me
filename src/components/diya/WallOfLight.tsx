@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { DiyaVisual, DiyaColorStyle } from "./DiyaVisual";
 import { DiyaLightModal, LitDiyaData } from "./DiyaLightModal";
-import { Flame, Sparkles, Plus, Trash2 } from "lucide-react";
+import { AllDiyasModal } from "./AllDiyasModal";
+import { Flame, Sparkles, Plus, Trash2, ArrowRight } from "lucide-react";
 
 const INITIAL_COMMUNITY_DIYAS: LitDiyaData[] = [
   {
@@ -56,11 +57,14 @@ const INITIAL_COMMUNITY_DIYAS: LitDiyaData[] = [
   },
 ];
 
+const MAIN_PAGE_DIYAS_LIMIT = 6;
+
 export function WallOfLight() {
   const [diyas, setDiyas] = useState<LitDiyaData[]>(INITIAL_COMMUNITY_DIYAS);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isAllDiyasModalOpen, setIsAllDiyasModalOpen] = useState<boolean>(false);
   const [myDiyaId, setMyDiyaId] = useState<string | null>(null);
-
+  const [myDiyaIds, setMyDiyaIds] = useState<string[]>([]);
   const [myDiya, setMyDiya] = useState<LitDiyaData | null>(null);
 
   // Load locally saved diyas on mount
@@ -72,6 +76,7 @@ export function WallOfLight() {
         if (parsed.length > 0) {
           setMyDiyaId(parsed[0].id);
           setMyDiya(parsed[0]);
+          setMyDiyaIds(parsed.map((d) => d.id));
           // Merge ONLY opted-in public diyas onto the wall; private diyas are strictly excluded
           setDiyas((prev) => {
             const ids = new Set(prev.map((d) => d.id));
@@ -88,6 +93,7 @@ export function WallOfLight() {
   const handleDiyaLit = (newDiya: LitDiyaData) => {
     setMyDiyaId(newDiya.id);
     setMyDiya(newDiya);
+    setMyDiyaIds((prev) => [newDiya.id, ...prev]);
 
     // Only render on the wall if user gave explicit consent (isPublic === true)
     if (newDiya.isPublic) {
@@ -107,6 +113,7 @@ export function WallOfLight() {
 
   const handleDeleteMyDiya = (id: string) => {
     setDiyas((prev) => prev.filter((d) => d.id !== id));
+    setMyDiyaIds((prev) => prev.filter((diyaId) => diyaId !== id));
     if (myDiyaId === id) {
       setMyDiyaId(null);
       setMyDiya(null);
@@ -179,10 +186,10 @@ export function WallOfLight() {
         </div>
       )}
 
-      {/* Grid of Lit Diyas */}
+      {/* Grid of Lit Diyas (Preview capped on main page to prevent clutter) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {diyas.map((diya) => {
-          const isMine = diya.id === myDiyaId;
+        {diyas.slice(0, MAIN_PAGE_DIYAS_LIMIT).map((diya) => {
+          const isMine = myDiyaIds.includes(diya.id) || diya.id === myDiyaId;
 
           return (
             <div
@@ -238,11 +245,34 @@ export function WallOfLight() {
         })}
       </div>
 
-      {/* Modal */}
+      {/* View All Overlay Trigger Button */}
+      <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <button
+          onClick={() => setIsAllDiyasModalOpen(true)}
+          aria-label="View all lit diyas"
+          className="px-7 py-3.5 rounded-2xl bg-diwali-surface hover:bg-diwali-surfaceLight border border-diwali-gold/40 hover:border-diwali-gold text-diwali-goldLight hover:text-white font-bold text-sm shadow-lg hover:shadow-diwali-gold/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2.5 cursor-pointer"
+        >
+          <Sparkles className="w-4 h-4 text-diwali-amber" />
+          <span>View All Diyas ({diyas.length} Illuminated)</span>
+          <ArrowRight className="w-4 h-4 text-diwali-gold" />
+        </button>
+      </div>
+
+      {/* Light Diya Modal */}
       <DiyaLightModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onDiyaLit={handleDiyaLit}
+      />
+
+      {/* View All Diyas Overlay Modal */}
+      <AllDiyasModal
+        isOpen={isAllDiyasModalOpen}
+        onClose={() => setIsAllDiyasModalOpen(false)}
+        diyas={diyas}
+        myDiyaIds={myDiyaIds}
+        onDeleteDiya={handleDeleteMyDiya}
+        onOpenLightModal={() => setIsModalOpen(true)}
       />
     </section>
   );

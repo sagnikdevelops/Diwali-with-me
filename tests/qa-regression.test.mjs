@@ -227,3 +227,44 @@ test("User Experience: fireworks are interactive; ambient music autoplays with g
     /const TRACKS: AudioTrack\[\] = \[\s*\{\s*id: "bansuri",\s*title: "Diwali Celebration Beats",\s*artist: "Festive Background Music",\s*src: "\/audio\/bansuri-flute\.mp3"/
   );
 });
+
+// Test QA-07: Wall of Light & Wish Wall View All Overlay Modals and Main Page Uncluttering
+test("QA-07: Wall of Light and Wish Wall cap main preview and provide View All overlay modals with local persistence", () => {
+  const diyaWall = fs.readFileSync(path.resolve("src/components/diya/WallOfLight.tsx"), "utf-8");
+  const wishWall = fs.readFileSync(path.resolve("src/components/lanterns/WishWall.tsx"), "utf-8");
+  const allDiyasModalPath = path.resolve("src/components/diya/AllDiyasModal.tsx");
+  const allWishesModalPath = path.resolve("src/components/lanterns/AllWishesModal.tsx");
+
+  // Modal files must exist
+  assert.equal(fs.existsSync(allDiyasModalPath), true, "AllDiyasModal component must exist");
+  assert.equal(fs.existsSync(allWishesModalPath), true, "AllWishesModal component must exist");
+
+  // Main page preview limits to prevent clutter
+  assert.match(diyaWall, /MAIN_PAGE_DIYAS_LIMIT = 6/);
+  assert.match(diyaWall, /diyas\.slice\(0, MAIN_PAGE_DIYAS_LIMIT\)/);
+  assert.match(diyaWall, /View All Diyas/);
+  assert.match(diyaWall, /setIsAllDiyasModalOpen\(true\)/);
+
+  assert.match(wishWall, /MAIN_PAGE_WISHES_LIMIT = 4/);
+  assert.match(wishWall, /wishes\.slice\(0, MAIN_PAGE_WISHES_LIMIT\)/);
+  assert.match(wishWall, /View All Sky Wishes/);
+  assert.match(wishWall, /setIsAllWishesModalOpen\(true\)/);
+
+  // Local storage persistence
+  assert.match(diyaWall, /localStorage\.setItem\("diwali_my_diyas"/);
+  assert.match(wishWall, /localStorage\.setItem\("diwali_my_lanterns"/);
+
+  // Modal accessibility & controls
+  const allDiyasContent = fs.readFileSync(allDiyasModalPath, "utf-8");
+  const allWishesContent = fs.readFileSync(allWishesModalPath, "utf-8");
+
+  assert.match(allDiyasContent, /role="dialog"/);
+  assert.match(allDiyasContent, /aria-modal="true"/);
+  assert.match(allDiyasContent, /searchQuery/);
+  assert.match(allDiyasContent, /selectedStyle/);
+
+  assert.match(allWishesContent, /role="dialog"/);
+  assert.match(allWishesContent, /aria-modal="true"/);
+  assert.match(allWishesContent, /searchQuery/);
+  assert.match(allWishesContent, /selectedColor/);
+});
