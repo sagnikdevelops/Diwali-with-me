@@ -11,6 +11,7 @@ import { ModernFestive } from "@/components/greeting/templates/ModernFestive";
 import { SpiritualSerene } from "@/components/greeting/templates/SpiritualSerene";
 import { DiyaVisual } from "@/components/diya/DiyaVisual";
 import { AudioBar } from "@/components/audio/AudioBar";
+import { FestiveFooter } from "@/components/footer/FestiveFooter";
 import { Sparkles, Flame, Share2, Copy, Check, ArrowRight, Home } from "lucide-react";
 import { audioSynth } from "@/lib/audio-synth";
 import Link from "next/link";
@@ -154,9 +155,8 @@ function ShareViewerContent() {
       {/* Floating Audio Bar */}
       <AudioBar />
 
-      <footer className="relative z-10 text-center text-[11px] text-diwali-lavender/60 mt-8">
-        Shubh Deepavali • Created with love & zero-budget architecture
-      </footer>
+      {/* Festive Signature Footer */}
+      <FestiveFooter />
     </div>
   );
 }

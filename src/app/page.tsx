@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { CinematicWelcome } from "@/components/intro/CinematicWelcome";
 import { SweetChoiceModal } from "@/components/intro/SweetChoiceModal";
 import { DiwaliCountdown } from "@/components/countdown/DiwaliCountdown";
@@ -16,19 +15,10 @@ import { SurpriseMode } from "@/components/fireworks/SurpriseMode";
 import { WishWall } from "@/components/lanterns/WishWall";
 import { MysteryGift } from "@/components/surprise/MysteryGift";
 import { FestiveQuiz } from "@/components/surprise/FestiveQuiz";
+import { FestiveHeader } from "@/components/header/FestiveHeader";
+import { FestiveFooter } from "@/components/footer/FestiveFooter";
 import { AudioBar } from "@/components/audio/AudioBar";
-import {
-  Sparkles,
-  Flame,
-  Menu,
-  X,
-  Gift,
-  Camera,
-  Heart,
-  HelpCircle,
-  ArrowRight,
-  Zap,
-} from "lucide-react";
+import { Sparkles, Flame, Zap } from "lucide-react";
 import { audioSynth } from "@/lib/audio-synth";
 
 export default function Home() {
@@ -36,7 +26,6 @@ export default function Home() {
   const [showSweetModal, setShowSweetModal] = useState<boolean>(false);
   const [sweetChoice, setSweetChoice] = useState<string | null>(null);
   const [isSurpriseOpen, setIsSurpriseOpen] = useState<boolean>(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   useEffect(() => {
     // Explicitly do not store sweet preference; ask it on every visit.
@@ -99,141 +88,15 @@ export default function Home() {
       {/* Floating Audio Controller */}
       <AudioBar />
 
-      {/* 4. Sticky Header Navigation */}
-      <header className="sticky top-0 z-40 bg-diwali-navy/85 backdrop-blur-md border-b border-diwali-gold/20 transition-all">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Brand Logo */}
-          <Link
-            href="/"
-            className="flex items-center gap-2.5 text-diwali-goldLight hover:text-white transition-colors group"
-          >
-            <div className="w-8 h-8 rounded-full bg-diwali-purple/50 border border-diwali-gold/40 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Flame className="w-4 h-4 text-diwali-amber fill-current" />
-            </div>
-            <div className="flex flex-col text-left">
-              <span className="font-serif font-bold text-sm tracking-wider leading-none">
-                Shubh Deepavali
-              </span>
-              <span className="text-[9px] text-diwali-lavender tracking-widest uppercase mt-0.5">
-                Festival of Lights
-              </span>
-            </div>
-          </Link>
-
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-5 text-xs text-diwali-lavender font-medium">
-            <a href="#wall-of-light" className="hover:text-diwali-goldLight transition-colors">
-              Wall of Light
-            </a>
-            <a href="#rangoli-studio" className="hover:text-diwali-goldLight transition-colors">
-              Rangoli Studio
-            </a>
-            <a href="#greeting-creator" className="hover:text-diwali-goldLight transition-colors">
-              Greeting Creator
-            </a>
-            <a href="#photo-greeting" className="hover:text-diwali-goldLight transition-colors">
-              Photo Cards
-            </a>
-            <a href="#fireworks" className="hover:text-diwali-goldLight transition-colors">
-              Fireworks
-            </a>
-            <a href="#sky-lanterns" className="hover:text-diwali-goldLight transition-colors">
-              Sky Lanterns
-            </a>
-            <a href="#mystery-gift" className="hover:text-diwali-goldLight transition-colors">
-              Gift Box
-            </a>
-            <a href="#festive-quiz" className="hover:text-diwali-goldLight transition-colors">
-              Mithai Quiz
-            </a>
-          </nav>
-
-          {/* Quick Header Actions */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                audioSynth.playGiftReveal();
-                setIsSurpriseOpen(true);
-              }}
-              className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-diwali-purple to-diwali-gold text-white font-bold text-xs shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-diwali-amber" />
-              <span>Surprise Mode</span>
-            </button>
-
-            {/* Mobile Menu Hamburger */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-diwali-lavender hover:text-white rounded-lg hover:bg-diwali-surface"
-              aria-label="Toggle navigation menu"
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Dropdown Menu */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden bg-diwali-midnight border-b border-diwali-gold/30 p-4 space-y-3 text-sm">
-            <a
-              href="#wall-of-light"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block text-diwali-ivory hover:text-diwali-gold"
-            >
-              Wall of Light
-            </a>
-            <a
-              href="#rangoli-studio"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block text-diwali-ivory hover:text-diwali-gold"
-            >
-              Rangoli Studio
-            </a>
-            <a
-              href="#greeting-creator"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block text-diwali-ivory hover:text-diwali-gold"
-            >
-              Greeting Creator
-            </a>
-            <a
-              href="#photo-greeting"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block text-diwali-ivory hover:text-diwali-gold"
-            >
-              Photo Cards
-            </a>
-            <a
-              href="#fireworks"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block text-diwali-ivory hover:text-diwali-gold"
-            >
-              Interactive Fireworks
-            </a>
-            <a
-              href="#sky-lanterns"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block text-diwali-ivory hover:text-diwali-gold"
-            >
-              Sky Lanterns & Wish Wall
-            </a>
-            <a
-              href="#mystery-gift"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block text-diwali-ivory hover:text-diwali-gold"
-            >
-              Mystery Diwali Gift
-            </a>
-            <a
-              href="#festive-quiz"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="block text-diwali-ivory hover:text-diwali-gold"
-            >
-              Mithai Personality Quiz
-            </a>
-          </div>
-        )}
-      </header>
+      {/* 4. Interactive Festive Header Navigation */}
+      <FestiveHeader
+        onOpenSurprise={() => {
+          audioSynth.playGiftReveal();
+          setIsSurpriseOpen(true);
+        }}
+        onOpenSweetModal={() => setShowSweetModal(true)}
+        sweetChoice={sweetChoice}
+      />
 
       {/* Sweet choice welcome pill if chosen */}
       {sweetChoice && (
@@ -357,57 +220,7 @@ export default function Home() {
       <FestiveQuiz />
 
       {/* 14. Grand Festive Footer */}
-      <footer className="mt-20 border-t border-diwali-gold/30 bg-diwali-midnight/90 py-12 px-4 text-diwali-ivory">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-2 space-y-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-full bg-diwali-purple border border-diwali-gold/40 flex items-center justify-center">
-                <Flame className="w-3.5 h-3.5 text-diwali-amber fill-current" />
-              </div>
-              <span className="font-serif font-bold text-base tracking-wider text-diwali-goldLight">
-                Shubh Deepavali 2026
-              </span>
-            </div>
-            <p className="text-xs text-diwali-lavender leading-relaxed max-w-sm">
-              An immersive Indian festival sanctuary blending sacred traditions, royal design, and modern interactive web technology. Built strictly under ₹0 budget compliance.
-            </p>
-            <p className="text-[11px] text-diwali-gold/80 italic font-serif">
-              ॐ असतो मा सद्गमय । तमसो मा ज्योतिर्गमय । मृत्योर्मा अमृतं गमय ।
-            </p>
-          </div>
-
-          <div>
-            <h4 className="text-xs font-bold text-diwali-goldLight uppercase tracking-wider mb-3">
-              Festive Features
-            </h4>
-            <ul className="space-y-2 text-xs text-diwali-lavender">
-              <li><a href="#wall-of-light" className="hover:text-white transition-colors">Wall of Light</a></li>
-              <li><a href="#rangoli-studio" className="hover:text-white transition-colors">Rangoli Studio</a></li>
-              <li><a href="#greeting-creator" className="hover:text-white transition-colors">Greeting Creator</a></li>
-              <li><a href="#photo-greeting" className="hover:text-white transition-colors">Photo Frame Studio</a></li>
-              <li><a href="#fireworks" className="hover:text-white transition-colors">Safe Fireworks</a></li>
-              <li><a href="#sky-lanterns" className="hover:text-white transition-colors">Sky Lanterns & Wish Wall</a></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-xs font-bold text-diwali-goldLight uppercase tracking-wider mb-3">
-              Zero-Budget Architecture
-            </h4>
-            <p className="text-xs text-diwali-lavender leading-relaxed mb-2">
-              Runs 100% on open-source web technologies, native Web Audio API oscillators, client-side vector graphics, and URL-state codecs with ₹0 total hosting expenditure.
-            </p>
-            <span className="inline-block px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-[10px] text-emerald-300 font-semibold">
-              Verified ₹0 Cloud Budget
-            </span>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto pt-8 mt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-[11px] text-diwali-lavender/70 gap-2">
-          <span>&copy; 2026 Shubh Deepavali Celebration. All festive traditions honoured with reverence.</span>
-          <span>Designed with devotion for the Website Building Competition.</span>
-        </div>
-      </footer>
+      <FestiveFooter />
     </div>
   );
 }
