@@ -108,7 +108,10 @@ export async function fetchRemotePublicDiyas(maxItems = 100): Promise<LitDiyaDat
  */
 export async function insertRemoteDiya(diya: LitDiyaData): Promise<boolean> {
   const db = getFirebaseDb();
-  if (!db) return false;
+  if (!db) {
+    console.warn("[Firebase] Cannot save diya: Firebase credentials are not configured.");
+    return false;
+  }
 
   try {
     const diyaDoc = doc(db, "diyas", diya.id);
@@ -120,13 +123,14 @@ export async function insertRemoteDiya(diya: LitDiyaData): Promise<boolean> {
       isPublic: diya.isPublic,
       createdAt: diya.createdAt,
     });
+    console.log("[Firebase] Successfully saved Diya to Cloud Firestore:", diya.id);
     return true;
   } catch (err: unknown) {
     const error = err as { code?: string; message?: string };
     if (error?.code === "permission-denied") {
-      console.error("Firebase Firestore write blocked: Update Firestore Rules to allow read, write: if true;");
+      console.error("[Firebase] Firestore write blocked: Update Firestore Rules in Firebase Console to allow read, write: if true;");
     } else {
-      console.warn("Firebase insert diya error:", error?.message || err);
+      console.warn("[Firebase] Insert diya error:", error?.message || err);
     }
     return false;
   }
@@ -226,7 +230,10 @@ export async function fetchRemotePublicLanterns(maxItems = 100): Promise<SkyLant
  */
 export async function insertRemoteLantern(lantern: SkyLanternData): Promise<boolean> {
   const db = getFirebaseDb();
-  if (!db) return false;
+  if (!db) {
+    console.warn("[Firebase] Cannot save lantern: Firebase credentials are not configured.");
+    return false;
+  }
 
   try {
     const lanternDoc = doc(db, "lanterns", lantern.id);
@@ -238,13 +245,14 @@ export async function insertRemoteLantern(lantern: SkyLanternData): Promise<bool
       isPublic: lantern.isPublic,
       createdAt: lantern.createdAt,
     });
+    console.log("[Firebase] Successfully saved Sky Lantern to Cloud Firestore:", lantern.id);
     return true;
   } catch (err: unknown) {
     const error = err as { code?: string; message?: string };
     if (error?.code === "permission-denied") {
-      console.error("Firebase Firestore write blocked: Update Firestore Rules to allow read, write: if true;");
+      console.error("[Firebase] Firestore write blocked: Update Firestore Rules in Firebase Console to allow read, write: if true;");
     } else {
-      console.warn("Firebase insert lantern error:", error?.message || err);
+      console.warn("[Firebase] Insert lantern error:", error?.message || err);
     }
     return false;
   }

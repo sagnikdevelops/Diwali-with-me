@@ -182,7 +182,7 @@ export function SkyLanterns({ onLanternReleased }: SkyLanternsProps) {
                     className="mt-0.5 rounded border-diwali-gold/40 text-diwali-gold focus:ring-0 accent-diwali-gold"
                   />
                   <span className="text-[11px] text-diwali-lavender leading-tight">
-                    Display my wish on this browser&apos;s <strong className="text-diwali-ivory">Wish Wall</strong> (saved locally on this device).
+                    Display my wish on the global <strong className="text-diwali-ivory">Wish Wall</strong> (synced live worldwide so all visitors can see it).
                   </span>
                 </label>
               </div>

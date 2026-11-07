@@ -167,11 +167,21 @@ export function WallOfLight() {
           <Sparkles className="w-3.5 h-3.5 text-diwali-amber" />
           <span>Celebration Sanctuary</span>
         </div>
+
+        {isFirebaseConfigured() && (
+          <div className="flex justify-center mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-medium text-emerald-300">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Global Cloud Sanctuary Active — Synced Worldwide</span>
+            </div>
+          </div>
+        )}
+
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-diwali-ivory mb-3">
           The Wall of Light
         </h2>
         <p className="text-sm sm:text-base text-diwali-lavender">
-          Every lit diya joins this illuminated constellation on your browser. Light your flame, leave a heartfelt dedication, and watch your festive illumination grow (saved locally on your device).
+          Every lit diya joins this illuminated constellation. Light your flame, leave a heartfelt dedication, and watch our festive sanctuary shine bright across the world in real time.
         </p>
 
         {/* CTA Button */}

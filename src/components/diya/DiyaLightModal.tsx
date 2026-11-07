@@ -229,7 +229,7 @@ export function DiyaLightModal({ isOpen, onClose, onDiyaLit }: DiyaLightModalPro
                     className="mt-0.5 rounded border-diwali-gold/40 text-diwali-gold focus:ring-0 accent-diwali-gold"
                   />
                   <span className="text-[11px] text-diwali-lavender leading-tight">
-                    Display my Diya on this browser&apos;s <strong className="text-diwali-ivory">Celebration Wall of Light</strong> (saved locally on this device; no personal contact data collected).
+                    Display my Diya on the global <strong className="text-diwali-ivory">Celebration Wall of Light</strong> (synced live worldwide so all devotees can see it; no personal contact data collected).
                   </span>
                 </label>
               </div>

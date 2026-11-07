@@ -167,11 +167,21 @@ export function WishWall() {
             <Heart className="w-3.5 h-3.5 text-diwali-crimson fill-current" />
             <span>Wish Constellation</span>
           </div>
+
+          {isFirebaseConfigured() && (
+            <div className="flex justify-center mb-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-medium text-emerald-300">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Global Wishes Active — Synced Worldwide</span>
+              </div>
+            </div>
+          )}
+
           <h3 className="text-2xl sm:text-3xl font-serif font-bold text-diwali-ivory">
             The Wish Wall
           </h3>
           <p className="text-xs sm:text-sm text-diwali-lavender mt-1">
-            Read inspiring festive intentions floating under the starlit sky (entries saved in your current browser).
+            Read inspiring festive intentions floating under the starlit sky from visitors across the world in real time.
           </p>
         </div>
 
