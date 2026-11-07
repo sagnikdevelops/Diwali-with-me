@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { SkyLanterns, SkyLanternData } from "./SkyLanterns";
 import { AllWishesModal } from "./AllWishesModal";
 import { Sparkles, Heart, ArrowRight, Trash2 } from "lucide-react";
-import { isSupabaseConfigured, fetchRemotePublicLanterns, insertRemoteLantern, subscribeToRemoteLanterns } from "@/lib/supabase";
+import { isFirebaseConfigured, fetchRemotePublicLanterns, insertRemoteLantern, subscribeToRemoteLanterns } from "@/lib/firebase";
 
 const INITIAL_WISHES: SkyLanternData[] = [
   {
@@ -73,9 +73,9 @@ export function WishWall() {
       // Storage unavailable
     }
 
-    // Connect to Supabase for multi-user real-time sync across devices if configured
+    // Connect to Firebase for multi-user real-time sync across devices if configured
     let unsubscribeRealtime: (() => void) | null = null;
-    if (isSupabaseConfigured()) {
+    if (isFirebaseConfigured()) {
       fetchRemotePublicLanterns().then((remoteLanterns) => {
         if (remoteLanterns.length > 0) {
           setWishes((prev) => {
@@ -105,7 +105,7 @@ export function WishWall() {
     // Only render on the Wish Wall if user gave explicit consent (isPublic === true)
     if (lantern.isPublic) {
       setWishes((prev) => [lantern, ...prev]);
-      if (isSupabaseConfigured()) {
+      if (isFirebaseConfigured()) {
         insertRemoteLantern(lantern).catch(() => {});
       }
     } else {

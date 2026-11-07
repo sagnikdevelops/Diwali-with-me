@@ -5,7 +5,7 @@ import { DiyaVisual, DiyaColorStyle } from "./DiyaVisual";
 import { DiyaLightModal, LitDiyaData } from "./DiyaLightModal";
 import { AllDiyasModal } from "./AllDiyasModal";
 import { Flame, Sparkles, Plus, Trash2, ArrowRight } from "lucide-react";
-import { isSupabaseConfigured, fetchRemotePublicDiyas, insertRemoteDiya, subscribeToRemoteDiyas } from "@/lib/supabase";
+import { isFirebaseConfigured, fetchRemotePublicDiyas, insertRemoteDiya, subscribeToRemoteDiyas } from "@/lib/firebase";
 
 const INITIAL_COMMUNITY_DIYAS: LitDiyaData[] = [
   {
@@ -90,9 +90,9 @@ export function WallOfLight() {
       // Storage unavailable or disabled
     }
 
-    // Connect to Supabase for multi-user real-time sync across devices if configured
+    // Connect to Firebase for multi-user real-time sync across devices if configured
     let unsubscribeRealtime: (() => void) | null = null;
-    if (isSupabaseConfigured()) {
+    if (isFirebaseConfigured()) {
       fetchRemotePublicDiyas().then((remoteDiyas) => {
         if (remoteDiyas.length > 0) {
           setDiyas((prev) => {
@@ -124,7 +124,7 @@ export function WallOfLight() {
     // Only render on the wall if user gave explicit consent (isPublic === true)
     if (newDiya.isPublic) {
       setDiyas((prev) => [newDiya, ...prev]);
-      if (isSupabaseConfigured()) {
+      if (isFirebaseConfigured()) {
         insertRemoteDiya(newDiya).catch(() => {});
       }
     }
