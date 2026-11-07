@@ -13,16 +13,16 @@ interface AudioTrack {
 
 const TRACKS: AudioTrack[] = [
   {
-    id: "sitar",
-    title: "Diwali Festive Ambience",
-    artist: "Festive Background Music",
-    src: "/audio/festive-sitar.mp3",
-  },
-  {
     id: "bansuri",
     title: "Diwali Celebration Beats",
     artist: "Festive Background Music",
     src: "/audio/bansuri-flute.mp3",
+  },
+  {
+    id: "sitar",
+    title: "Diwali Festive Ambience",
+    artist: "Festive Background Music",
+    src: "/audio/festive-sitar.mp3",
   },
   {
     id: "santoor",

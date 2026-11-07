@@ -220,4 +220,10 @@ test("User Experience: fireworks are interactive; ambient music autoplays with g
   assert.match(audioContent, /const togglePlay = \(\) =>/);
   assert.match(audioContent, /aria-label=\{isPlaying \? "Pause music" : "Play music"\}/);
   assert.equal(audioContent.includes('preload="auto"'), true, "AudioBar must have preload=auto for instant playback");
+
+  // Verify bansuri-flute.mp3 is the default track (first item in TRACKS array)
+  assert.match(
+    audioContent,
+    /const TRACKS: AudioTrack\[\] = \[\s*\{\s*id: "bansuri",\s*title: "Diwali Celebration Beats",\s*artist: "Festive Background Music",\s*src: "\/audio\/bansuri-flute\.mp3"/
+  );
 });
