@@ -5,6 +5,7 @@ import { DiyaVisual, DiyaColorStyle } from "./DiyaVisual";
 import { DiyaLightModal, LitDiyaData } from "./DiyaLightModal";
 import { AllDiyasModal } from "./AllDiyasModal";
 import { Flame, Sparkles, Plus, Trash2, ArrowRight } from "lucide-react";
+import { isSupabaseConfigured, fetchRemotePublicDiyas, insertRemoteDiya, subscribeToRemoteDiyas } from "@/lib/supabase";
 
 const INITIAL_COMMUNITY_DIYAS: LitDiyaData[] = [
   {
@@ -67,7 +68,7 @@ export function WallOfLight() {
   const [myDiyaIds, setMyDiyaIds] = useState<string[]>([]);
   const [myDiya, setMyDiya] = useState<LitDiyaData | null>(null);
 
-  // Load locally saved diyas on mount
+  // Load locally saved diyas on mount and connect Supabase sync
   useEffect(() => {
     try {
       const stored = localStorage.getItem("diwali_my_diyas");
@@ -88,6 +89,31 @@ export function WallOfLight() {
     } catch {
       // Storage unavailable or disabled
     }
+
+    // Connect to Supabase for multi-user real-time sync across devices if configured
+    let unsubscribeRealtime: (() => void) | null = null;
+    if (isSupabaseConfigured()) {
+      fetchRemotePublicDiyas().then((remoteDiyas) => {
+        if (remoteDiyas.length > 0) {
+          setDiyas((prev) => {
+            const ids = new Set(prev.map((d) => d.id));
+            const newRemote = remoteDiyas.filter((d) => !ids.has(d.id));
+            return [...newRemote, ...prev];
+          });
+        }
+      });
+
+      unsubscribeRealtime = subscribeToRemoteDiyas((newRemoteDiya) => {
+        setDiyas((prev) => {
+          if (prev.some((d) => d.id === newRemoteDiya.id)) return prev;
+          return [newRemoteDiya, ...prev];
+        });
+      });
+    }
+
+    return () => {
+      if (unsubscribeRealtime) unsubscribeRealtime();
+    };
   }, []);
 
   const handleDiyaLit = (newDiya: LitDiyaData) => {
@@ -98,6 +124,9 @@ export function WallOfLight() {
     // Only render on the wall if user gave explicit consent (isPublic === true)
     if (newDiya.isPublic) {
       setDiyas((prev) => [newDiya, ...prev]);
+      if (isSupabaseConfigured()) {
+        insertRemoteDiya(newDiya).catch(() => {});
+      }
     }
 
     // Save to local storage
