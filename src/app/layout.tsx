@@ -26,11 +26,17 @@ export const metadata: Metadata = {
     "Diwali celebration",
     "Indian festival of lights",
   ],
-  authors: [{ name: "Festival Creative Team" }],
+  authors: [{ name: "Sagnik Dutta", url: "https://www.linkedin.com/in/sagnikduttahere/" }],
+  creator: "Sagnik Dutta",
+  publisher: "Sagnik Dutta",
   openGraph: {
     title: "Shubh Deepavali — Festival of Lights Sanctuary",
     description: "Light digital diyas, create personalized cards, and experience sacred Indian festivities.",
     type: "website",
+    siteName: "Shubh Deepavali",
+  },
+  other: {
+    "copyright": "Copyright (c) 2026 Sagnik Dutta. All rights reserved.",
   },
 };
 

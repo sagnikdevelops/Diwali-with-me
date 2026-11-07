@@ -2,6 +2,15 @@
 
 > An immersive, culturally rich Indian Diwali festival experience built for the Website Building Competition under a strict **₹0 Budget**.
 
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary%20%2F%20All%20Rights%20Reserved-red.svg)](LICENSE)
+[![Hackathon Submission](https://img.shields.io/badge/Hackathon-Original%20Submission-gold.svg)](NOTICE)
+[![Author: Sagnik Dutta](https://img.shields.io/badge/Author-Sagnik%20Dutta-blue.svg)](https://www.linkedin.com/in/sagnikduttahere/)
+
+> [!IMPORTANT]
+> **Copyright & Competition Originality Notice**
+> This repository is the original intellectual property of [Sagnik Dutta](https://www.linkedin.com/in/sagnikduttahere/) created for the official Website Building Competition / Hackathon. All rights reserved. 
+> Hackathon judges and evaluators have full permission to review, compile, and test the project. However, **copying, redistributing, forking for plagiarism, or re-submitting this project to any competition or hackathon is strictly prohibited** under the [Proprietary & Hackathon Submission License](LICENSE). Cryptographic Git commit timestamps establish prior art and proof of original authorship.
+
 ---
 
 ## 🌟 Key Highlights
@@ -116,4 +125,13 @@ cp .env.example .env.local
 - `ASSET_REQUESTS.md` — Vector and image specifications
 - `SETUP_REQUIRED.md` — Setup instructions for developers and judges
 - `QA_REPORT.md` — Comprehensive test matrix and runtime QA results
+
+---
+
+## ⚖️ License & Copyright
+
+Copyright (c) 2026 **Sagnik Dutta** ([LinkedIn](https://www.linkedin.com/in/sagnikduttahere/)). All rights reserved.
+
+This software is licensed under the **Proprietary & Hackathon Submission License**. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE) for complete terms. Unauthorized copying, mirroring, modification, or competition re-submission will be reported for academic and competition misconduct.
+
 

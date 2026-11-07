@@ -1,0 +1,64 @@
+PROPRIETARY & HACKATHON SUBMISSION LICENSE
+Copyright (c) 2026 Sagnik Dutta. All rights reserved.
+Author: Sagnik Dutta (https://www.linkedin.com/in/sagnikduttahere/)
+
+This project ("Shubh Deepavali — Diwali Greetings & Festive Sanctuary") and all associated
+source code, documentation, graphics, audio arrangements, design tokens, and digital assets
+are the exclusive intellectual property and copyright of Sagnik Dutta.
+
+================================================================================
+1. HACKATHON SUBMISSION & ORIGINALITY DECLARATION
+================================================================================
+This repository and its contents were conceived, designed, engineered, tested, and
+published specifically as an original entry for the official Website Building Hackathon /
+Competition under a strict ₹0 budget constraint.
+
+Git commit histories, cryptographic hashes, and public commit timestamps serve as
+indisputable proof of original authorship, date of creation, and intellectual provenance.
+
+================================================================================
+2. PERMITTED EVALUATION USE
+================================================================================
+Official hackathon judges, mentors, reviewers, and authorized evaluation committees are
+hereby granted a limited, non-exclusive, non-transferable license to:
+  (a) Inspect, compile, build, run, and test the source code locally or on cloud hosts.
+  (b) Review the live deployment and audit documentation for competition evaluation.
+  (c) Benchmark performance, accessibility, responsiveness, and code quality.
+
+================================================================================
+3. STRICT RESTRICTIONS & PROHIBITION OF PLAGIARISM
+================================================================================
+EXCEPT AS EXPRESSLY PERMITTED IN SECTION 2, NO RIGHTS ARE GRANTED.
+Without prior written authorization from the copyright holder (Sagnik Dutta):
+
+  (a) NO HACKATHON / COMPETITION SUBMISSIONS:
+      You may NOT copy, fork, modify, translate, repurpose, re-brand, or submit this
+      project, in whole or in part, as your own work or your team's work to any
+      hackathon, challenge, contest, course, or competition. Any unauthorized submission
+      will be reported immediately to organizers, platform administrators, and institutions
+      for immediate disqualification and academic/ethical misconduct review.
+
+  (b) NO REDISTRIBUTION OR COMMERCIAL EXPLOITATION:
+      You may NOT sell, license, lease, syndicate, publish, mirror, host for profit,
+      or distribute this codebase or any derived works.
+
+  (c) NO DERIVATIVE WORKS:
+      You may NOT alter, adapt, or build upon the proprietary architecture, artwork,
+      or distinctive user interface designs of this project for competitive gain.
+
+================================================================================
+4. COPYRIGHT NOTICE PRESERVATION
+================================================================================
+All copyright notices, authorship credits, and links to the author's professional
+profiles embedded in source files, web metadata, and user-facing footers must remain
+intact and unmodified.
+
+================================================================================
+5. DISCLAIMER OF WARRANTY
+================================================================================
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.

@@ -2,6 +2,8 @@
   "name": "diwali-greeting-website",
   "version": "1.0.0",
   "private": true,
+  "license": "UNLICENSED",
+  "author": "Sagnik Dutta (https://www.linkedin.com/in/sagnikduttahere/)",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
