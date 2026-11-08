@@ -9,6 +9,7 @@ import { DiyaVisual } from "@/components/diya/DiyaVisual";
 import { RangoliStudio } from "@/components/rangoli/RangoliStudio";
 import { GreetingCreator } from "@/components/greeting/GreetingCreator";
 import { PhotoGreeting } from "@/components/greeting/PhotoGreeting";
+import { MithaiBoxStudio } from "@/components/mithai/MithaiBoxStudio";
 import { FireworksCanvas } from "@/components/fireworks/FireworksCanvas";
 import { FireworkFacts } from "@/components/fireworks/FireworkFacts";
 import { SurpriseMode } from "@/components/fireworks/SurpriseMode";
@@ -191,7 +192,10 @@ export default function Home() {
       {/* 9. Photo Greeting Studio Section */}
       <PhotoGreeting />
 
-      {/* 10. Interactive Fireworks Section */}
+      {/* 10. Royal Diwali Mithai Box Studio Section */}
+      <MithaiBoxStudio />
+
+      {/* 11. Interactive Fireworks Section */}
       <section id="fireworks" className="py-16 sm:py-24 px-4 max-w-7xl mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-diwali-purple/30 border border-diwali-gold/30 text-xs font-semibold text-diwali-goldLight mb-3">

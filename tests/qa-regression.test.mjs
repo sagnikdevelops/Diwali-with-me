@@ -24,7 +24,12 @@ function loadTypeScriptModule(relativePath) {
   return loadedModule.exports;
 }
 
-const { decodeGreetingData, encodeGreetingData } = loadTypeScriptModule("src/lib/share-codec.ts");
+const {
+  decodeGreetingData,
+  encodeGreetingData,
+  decodeMithaiBoxData,
+  encodeMithaiBoxData,
+} = loadTypeScriptModule("src/lib/share-codec.ts");
 const { copyToClipboard } = loadTypeScriptModule("src/lib/utils.ts");
 const { parseGreetingRequest } = loadTypeScriptModule("src/lib/greeting-request.ts");
 
@@ -160,6 +165,8 @@ test("QA-05: Core components have explicit id, htmlFor, and aria-labels on form 
     "src/components/lanterns/SkyLanterns.tsx",
     "src/components/rangoli/RangoliStudio.tsx",
     "src/components/header/FestiveHeader.tsx",
+    "src/components/mithai/MithaiBoxStudio.tsx",
+    "src/components/mithai/MithaiUnboxModal.tsx",
   ];
 
   for (const compPath of components) {
@@ -267,4 +274,69 @@ test("QA-07: Wall of Light and Wish Wall cap main preview and provide View All o
   assert.match(allWishesContent, /aria-modal="true"/);
   assert.match(allWishesContent, /searchQuery/);
   assert.match(allWishesContent, /selectedColor/);
+});
+
+// Test QA-08: Royal Mithai Box Studio & Share Codec
+test("QA-08: Mithai Box codec round-trips payloads, bounds sweets, and components are fully accessible", () => {
+  const sampleBox = {
+    recipient: "Aarav & Priya परिवार",
+    sender: "Sagnik",
+    message: "Wishing you infinite sweetness and joy this Deepavali! 🪔✨",
+    boxStyle: "royal-crimson",
+    sweets: ["kaju-katli", "motichoor-ladoo", "gulab-jamun", "soan-papdi", "kaju-pista-roll", "besan-ladoo"],
+    createdAt: 1731000000000,
+  };
+
+  const encoded = encodeMithaiBoxData(sampleBox);
+  assert.equal(typeof encoded, "string");
+  assert.ok(encoded.length > 0);
+
+  const decoded = decodeMithaiBoxData(encoded);
+  assert.notEqual(decoded, null);
+  assert.equal(decoded?.recipient, sampleBox.recipient);
+  assert.equal(decoded?.sender, sampleBox.sender);
+  assert.equal(decoded?.message, sampleBox.message);
+  assert.equal(decoded?.boxStyle, sampleBox.boxStyle);
+  assert.deepEqual(decoded?.sweets, sampleBox.sweets);
+
+  // Rejection of invalid / malformed base64
+  assert.equal(decodeMithaiBoxData(""), null);
+  assert.equal(decodeMithaiBoxData("invalid-base64@@@###"), null);
+  assert.equal(decodeMithaiBoxData("bm90LWpzb24="), null);
+
+  // Fallback on invalid box style
+  const invalidStyleEncoded = encodeMithaiBoxData({
+    ...sampleBox,
+    boxStyle: "unknown-style",
+  });
+  const decodedInvalidStyle = decodeMithaiBoxData(invalidStyleEncoded);
+  assert.equal(decodedInvalidStyle?.boxStyle, "royal-crimson");
+
+  // Verify SweetVisual has all authentic sweets
+  const sweetVisualSource = fs.readFileSync(path.resolve("src/components/mithai/SweetVisual.tsx"), "utf-8");
+  const authenticSweets = [
+    "kaju-katli",
+    "motichoor-ladoo",
+    "gulab-jamun",
+    "soan-papdi",
+    "kaju-pista-roll",
+    "besan-ladoo",
+    "jalebi",
+    "rasgulla",
+    "gujiya",
+  ];
+  for (const sweetId of authenticSweets) {
+    assert.ok(
+      sweetVisualSource.includes(`case "${sweetId}":`),
+      `SweetVisual must render visual for ${sweetId}`
+    );
+  }
+
+  // Verify MithaiBoxStudio integration in main page
+  const pageSource = fs.readFileSync(path.resolve("src/app/page.tsx"), "utf-8");
+  assert.ok(pageSource.includes("<MithaiBoxStudio"), "MithaiBoxStudio must be rendered in main page");
+
+  // Verify share viewer handles box query param
+  const sharePageSource = fs.readFileSync(path.resolve("src/app/share/page.tsx"), "utf-8");
+  assert.ok(sharePageSource.includes('searchParams.get("box")'), "Share page must support ?box= parameter");
 });
