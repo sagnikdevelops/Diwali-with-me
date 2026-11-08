@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Search, Heart, Sparkles, Trash2, Filter, Send } from "lucide-react";
+import { X, Search, Heart, Sparkles, Trash2, Filter, Send, Share2, Check } from "lucide-react";
 import { SkyLanternData } from "./SkyLanterns";
+import { encodeLanternData } from "@/lib/share-codec";
+import { copyToClipboard } from "@/lib/utils";
 
 interface AllWishesModalProps {
   isOpen: boolean;
@@ -31,6 +33,35 @@ export function AllWishesModal({
 }: AllWishesModalProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedColor, setSelectedColor] = useState<SkyLanternData["color"] | "all">("all");
+  const [copiedLanternId, setCopiedLanternId] = useState<string | null>(null);
+
+  const handleShareLantern = async (item: SkyLanternData) => {
+    if (typeof window === "undefined") return;
+    const encoded = encodeLanternData({
+      id: item.id,
+      name: item.name,
+      wish: item.wish,
+      color: item.color,
+      createdAt: item.createdAt,
+    });
+    const url = `${window.location.origin}/share?lantern=${encoded}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${item.name}'s Diwali Sky Lantern`,
+          text: `Diwali Sky Lantern lit by ${item.name}: "${item.wish}" 🏮✨`,
+          url: url,
+        });
+        return;
+      } catch {
+        // Fallback
+      }
+    }
+    await copyToClipboard(url);
+    setCopiedLanternId(item.id);
+    setTimeout(() => setCopiedLanternId(null), 2500);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -217,6 +248,18 @@ export function AllWishesModal({
                               Your Wish
                             </span>
                           )}
+                          <button
+                            onClick={() => handleShareLantern(item)}
+                            title="Share this sky lantern"
+                            className="p-1 rounded text-diwali-lavender hover:text-diwali-goldLight transition-colors"
+                            aria-label={`Share ${item.name}'s sky lantern`}
+                          >
+                            {copiedLanternId === item.id ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            ) : (
+                              <Share2 className="w-3.5 h-3.5" />
+                            )}
+                          </button>
                           {isMine && (
                             <button
                               onClick={() => onDeleteWish(item.id)}

@@ -146,3 +146,76 @@ export function decodeMithaiBoxData(encodedStr: string): ShareableMithaiBoxData 
   }
 }
 
+// ==============================================================================
+// SKY LANTERN SHARING CODEC
+// ==============================================================================
+
+export interface ShareableLanternData {
+  id?: string;
+  name: string;
+  wish: string;
+  color: "amber" | "saffron" | "rose" | "emerald";
+  createdAt?: number;
+}
+
+export function encodeLanternData(data: ShareableLanternData): string {
+  try {
+    const jsonStr = JSON.stringify({
+      id: data.id ? data.id.slice(0, 50) : undefined,
+      n: data.name.trim().slice(0, 50),
+      w: data.wish.trim().slice(0, 300),
+      c: data.color,
+      ts: data.createdAt || Date.now(),
+    });
+
+    const bytes = new TextEncoder().encode(jsonStr);
+    let binary = "";
+    for (let i = 0; i < bytes.length; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary)
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+  } catch (err) {
+    console.error("Error encoding lantern data:", err);
+    return "";
+  }
+}
+
+export function decodeLanternData(encodedStr: string): ShareableLanternData | null {
+  try {
+    if (!encodedStr || typeof encodedStr !== "string") return null;
+    let base64 = encodedStr.replace(/-/g, "+").replace(/_/g, "/");
+    while (base64.length % 4) {
+      base64 += "=";
+    }
+    const atobFn =
+      typeof window !== "undefined"
+        ? window.atob
+        : (str: string) => Buffer.from(str, "base64").toString("binary");
+    const binary = atobFn(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    const jsonStr = new TextDecoder().decode(bytes);
+    const parsed = JSON.parse(jsonStr);
+
+    if (!parsed || typeof parsed !== "object") return null;
+
+    const validColors = ["amber", "saffron", "rose", "emerald"];
+    const color = validColors.includes(parsed.c) ? parsed.c : "amber";
+
+    return {
+      id: parsed.id ? String(parsed.id) : undefined,
+      name: String(parsed.n || "Kind Soul"),
+      wish: String(parsed.w || "May peace, health, and radiant joy illuminate every corner of our world."),
+      color: color as ShareableLanternData["color"],
+      createdAt: parsed.ts ? Number(parsed.ts) : undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+

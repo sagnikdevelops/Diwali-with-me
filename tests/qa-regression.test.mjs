@@ -29,6 +29,8 @@ const {
   encodeGreetingData,
   decodeMithaiBoxData,
   encodeMithaiBoxData,
+  decodeLanternData,
+  encodeLanternData,
 } = loadTypeScriptModule("src/lib/share-codec.ts");
 const { copyToClipboard } = loadTypeScriptModule("src/lib/utils.ts");
 const { parseGreetingRequest } = loadTypeScriptModule("src/lib/greeting-request.ts");
@@ -339,4 +341,48 @@ test("QA-08: Mithai Box codec round-trips payloads, bounds sweets, and component
   // Verify share viewer handles box query param
   const sharePageSource = fs.readFileSync(path.resolve("src/app/share/page.tsx"), "utf-8");
   assert.ok(sharePageSource.includes('searchParams.get("box")'), "Share page must support ?box= parameter");
+});
+
+// Test QA-09: Sky Lantern Direct Share & Viewer
+test("QA-09: Sky Lantern share link encodes user's released lantern and share viewer handles ?lantern= param", () => {
+  const sampleLantern = {
+    name: "Aarav Sharma परिवार",
+    wish: "May divine peace, health, and limitless joy fill every soul across the universe! 🏮✨",
+    color: "saffron",
+    createdAt: 1731000000000,
+  };
+
+  const encoded = encodeLanternData(sampleLantern);
+  assert.equal(typeof encoded, "string");
+  assert.ok(encoded.length > 0);
+
+  const decoded = decodeLanternData(encoded);
+  assert.notEqual(decoded, null);
+  assert.equal(decoded?.name, sampleLantern.name);
+  assert.equal(decoded?.wish, sampleLantern.wish);
+  assert.equal(decoded?.color, sampleLantern.color);
+  assert.equal(decoded?.createdAt, sampleLantern.createdAt);
+
+  // Invalid base64 or empty strings return null gracefully
+  assert.equal(decodeLanternData(""), null);
+  assert.equal(decodeLanternData("malformed-lantern@@@###"), null);
+  assert.equal(decodeLanternData("bm90LWpzb24="), null);
+
+  // Fallback for invalid color
+  const invalidColorEncoded = encodeLanternData({
+    ...sampleLantern,
+    color: "neon-pink",
+  });
+  const decodedInvalidColor = decodeLanternData(invalidColorEncoded);
+  assert.equal(decodedInvalidColor?.color, "amber");
+
+  // SkyLanterns component uses ?lantern= parameter for sharing
+  const skyLanternsSource = fs.readFileSync(path.resolve("src/components/lanterns/SkyLanterns.tsx"), "utf-8");
+  assert.ok(skyLanternsSource.includes("/share?lantern="), "SkyLanterns must generate link with /share?lantern=");
+  assert.ok(!skyLanternsSource.includes("url: window.location.origin }"), "SkyLanterns must not share bare origin without lantern parameter");
+
+  // Share page supports ?lantern= parameter
+  const sharePageSource = fs.readFileSync(path.resolve("src/app/share/page.tsx"), "utf-8");
+  assert.ok(sharePageSource.includes('searchParams.get("lantern")'), "Share page must retrieve ?lantern= parameter");
+  assert.ok(sharePageSource.includes("decodeLanternData"), "Share page must decode lantern data");
 });

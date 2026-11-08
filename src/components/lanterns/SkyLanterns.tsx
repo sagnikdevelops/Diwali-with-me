@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Sparkles, Send, Check, Share2, Flame, AlertCircle } from "lucide-react";
+import { Sparkles, Send, Check, Share2, Flame, AlertCircle, Copy } from "lucide-react";
 import { audioSynth } from "@/lib/audio-synth";
 import { copyToClipboard } from "@/lib/utils";
+import { encodeLanternData } from "@/lib/share-codec";
 
 export interface SkyLanternData {
   id: string;
@@ -18,7 +19,7 @@ interface SkyLanternsProps {
   onLanternReleased: (lantern: SkyLanternData) => void;
 }
 
-const LANTERN_COLORS: { id: SkyLanternData["color"]; label: string; glow: string; hex: string }[] = [
+export const LANTERN_COLORS: { id: SkyLanternData["color"]; label: string; glow: string; hex: string }[] = [
   { id: "amber", label: "Golden Amber", glow: "rgba(255, 181, 71, 0.6)", hex: "#FFB547" },
   { id: "saffron", label: "Saffron Peace", glow: "rgba(255, 140, 0, 0.6)", hex: "#FF8C00" },
   { id: "rose", label: "Rose Harmony", glow: "rgba(229, 117, 147, 0.6)", hex: "#E57593" },
@@ -32,6 +33,7 @@ export function SkyLanterns({ onLanternReleased }: SkyLanternsProps) {
   const [isPublic, setIsPublic] = useState<boolean>(true);
   const [isReleasing, setIsReleasing] = useState<boolean>(false);
   const [hasReleased, setHasReleased] = useState<boolean>(false);
+  const [releasedLantern, setReleasedLantern] = useState<SkyLanternData | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [copyFailed, setCopyFailed] = useState<boolean>(false);
 
@@ -54,29 +56,70 @@ export function SkyLanterns({ onLanternReleased }: SkyLanternsProps) {
     setTimeout(() => {
       setIsReleasing(false);
       setHasReleased(true);
+      setReleasedLantern(newLantern);
       onLanternReleased(newLantern);
     }, 2000);
   };
 
+  const getShareUrl = () => {
+    if (typeof window === "undefined") return "";
+    if (!releasedLantern) return window.location.origin;
+    const encoded = encodeLanternData({
+      id: releasedLantern.id,
+      name: releasedLantern.name,
+      wish: releasedLantern.wish,
+      color: releasedLantern.color,
+      createdAt: releasedLantern.createdAt,
+    });
+    return `${window.location.origin}/share?lantern=${encoded}`;
+  };
+
+  const handleShareWhatsApp = () => {
+    const url = getShareUrl();
+    const lanternName = releasedLantern?.name || "I";
+    const text = `Namaste! 🏮✨ ${lanternName} just released a glowing Diwali Sky Lantern with a heartfelt wish into the night sky:\n\n"${releasedLantern?.wish || 'May peace and joy light up all lives'}"\n\nWatch my lantern float into the starlit heavens and release yours: ${url}`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, "_blank");
+  };
+
   const handleShare = async () => {
-    const text = `I just released a Diwali Sky Lantern with a wish for peace! 🏮✨ Release yours here: ${window.location.origin}`;
+    const url = getShareUrl();
+    const lanternName = releasedLantern?.name || "I";
+    const text = `Namaste! 🏮✨ ${lanternName} just released a glowing Diwali Sky Lantern: "${releasedLantern?.wish || 'Peace & Light'}"\n\nWatch my lantern float and release yours: ${url}`;
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Diwali Sky Lantern", text, url: window.location.origin });
+        await navigator.share({
+          title: `${lanternName}'s Diwali Sky Lantern`,
+          text: `I just released a Diwali Sky Lantern with a wish for the world! 🏮✨`,
+          url: url,
+        });
+        return;
       } catch {
         // Fallback or user dismiss
       }
+    }
+    const success = await copyToClipboard(url);
+    if (success) {
+      setCopied(true);
+      setCopyFailed(false);
+      setTimeout(() => setCopied(false), 2500);
     } else {
-      const success = await copyToClipboard(text);
-      if (success) {
-        setCopied(true);
-        setCopyFailed(false);
-        setTimeout(() => setCopied(false), 2500);
-      } else {
-        setCopyFailed(true);
-        setCopied(false);
-        setTimeout(() => setCopyFailed(false), 3000);
-      }
+      setCopyFailed(true);
+      setCopied(false);
+      setTimeout(() => setCopyFailed(false), 3000);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    const url = getShareUrl();
+    const success = await copyToClipboard(url);
+    if (success) {
+      setCopied(true);
+      setCopyFailed(false);
+      setTimeout(() => setCopied(false), 2500);
+    } else {
+      setCopyFailed(true);
+      setCopied(false);
+      setTimeout(() => setCopyFailed(false), 3000);
     }
   };
 
@@ -199,7 +242,7 @@ export function SkyLanterns({ onLanternReleased }: SkyLanternsProps) {
             </form>
           ) : (
             /* Confirmation */
-            <div className="py-4 text-center sm:text-left">
+            <div className="py-4 text-center sm:text-left animate-in fade-in duration-300">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold mb-2">
                 <Check className="w-4 h-4" />
                 <span>Lantern Released Successfully</span>
@@ -207,41 +250,79 @@ export function SkyLanterns({ onLanternReleased }: SkyLanternsProps) {
               <h4 className="text-xl font-serif font-bold text-diwali-goldLight mb-1">
                 Your Wish Ascends!
               </h4>
-              <p className="text-xs text-diwali-lavender mb-6">
+              <p className="text-xs text-diwali-lavender mb-3">
                 May your prayers be carried upon the gentle winds and bring peace to the cosmos.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              {/* Lantern summary preview pill */}
+              {releasedLantern && (
+                <div className="p-3 mb-4 rounded-2xl bg-diwali-midnight/90 border border-diwali-gold/30 text-xs text-left shadow-inner">
+                  <div className="flex items-center justify-between text-[11px] mb-1">
+                    <span className="font-bold text-diwali-goldLight">{releasedLantern.name}</span>
+                    <span className="capitalize px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-diwali-lavender text-[10px]">
+                      {releasedLantern.color} Lantern
+                    </span>
+                  </div>
+                  <p className="italic text-diwali-ivory font-light leading-relaxed">&ldquo;{releasedLantern.wish}&rdquo;</p>
+                </div>
+              )}
+
+              {/* Action buttons: WhatsApp, Copy Direct Link, Native Share, Release Another */}
+              <div className="flex flex-col sm:flex-row flex-wrap gap-2.5">
                 <button
-                  onClick={handleShare}
-                  className="py-2.5 px-4 rounded-xl bg-diwali-surfaceLight hover:bg-diwali-surface border border-diwali-gold/40 text-xs font-medium text-diwali-ivory flex items-center justify-center gap-1.5 transition-colors"
+                  type="button"
+                  onClick={handleShareWhatsApp}
+                  aria-label="Share sky lantern on WhatsApp"
+                  className="py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-md shadow-emerald-950/40"
                 >
-                  {copyFailed ? (
+                  <Send className="w-4 h-4" />
+                  <span>Send on WhatsApp</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  aria-label="Copy direct link to your sky lantern"
+                  className="py-2.5 px-4 rounded-xl bg-diwali-surfaceLight hover:bg-diwali-surface border border-diwali-gold/40 text-xs font-medium text-diwali-ivory flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-400" />
+                      <span className="text-emerald-300 font-semibold">Lantern Link Copied!</span>
+                    </>
+                  ) : copyFailed ? (
                     <>
                       <AlertCircle className="w-4 h-4 text-diwali-crimson" />
                       <span className="text-red-300">Copy Failed</span>
                     </>
-                  ) : copied ? (
-                    <>
-                      <Check className="w-4 h-4 text-emerald-400" />
-                      <span>Link Copied!</span>
-                    </>
                   ) : (
                     <>
-                      <Share2 className="w-4 h-4 text-diwali-gold" />
-                      <span>Share the Magic</span>
+                      <Copy className="w-4 h-4 text-diwali-gold" />
+                      <span>Copy Lantern Link</span>
                     </>
                   )}
                 </button>
 
                 <button
+                  type="button"
+                  onClick={handleShare}
+                  aria-label="Share lantern via other apps"
+                  className="py-2.5 px-3 rounded-xl bg-diwali-surface hover:bg-diwali-surfaceLight border border-white/15 text-xs font-medium text-diwali-lavender hover:text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Share2 className="w-4 h-4 text-diwali-goldLight" />
+                  <span>More</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => {
                     setHasReleased(false);
                     setWish("");
+                    setReleasedLantern(null);
                   }}
-                  className="py-2.5 px-4 rounded-xl bg-diwali-gold text-diwali-navy font-bold text-xs hover:bg-diwali-goldLight transition-colors"
+                  className="py-2.5 px-4 rounded-xl bg-diwali-gold text-diwali-navy font-bold text-xs hover:bg-diwali-goldLight transition-colors cursor-pointer"
                 >
-                  Release Another Lantern
+                  Release Another
                 </button>
               </div>
             </div>

@@ -2,7 +2,15 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { decodeGreetingData, decodeMithaiBoxData, ShareableGreetingData, ShareableMithaiBoxData } from "@/lib/share-codec";
+import {
+  decodeGreetingData,
+  decodeMithaiBoxData,
+  decodeLanternData,
+  ShareableGreetingData,
+  ShareableMithaiBoxData,
+  ShareableLanternData,
+} from "@/lib/share-codec";
+import { LANTERN_COLORS } from "@/components/lanterns/SkyLanterns";
 import { RoyalTraditional } from "@/components/greeting/templates/RoyalTraditional";
 import { MinimalElegant } from "@/components/greeting/templates/MinimalElegant";
 import { GoldenLuxury } from "@/components/greeting/templates/GoldenLuxury";
@@ -24,21 +32,36 @@ function ShareViewerContent() {
   const searchParams = useSearchParams();
   const dataParam = searchParams.get("data");
   const boxParam = searchParams.get("box");
+  const lanternParam = searchParams.get("lantern");
 
   const [greeting, setGreeting] = useState<ShareableGreetingData | null>(null);
   const [mithaiBox, setMithaiBox] = useState<ShareableMithaiBoxData | null>(null);
+  const [lantern, setLantern] = useState<ShareableLanternData | null>(null);
   const [isBoxOpened, setIsBoxOpened] = useState<boolean>(false);
   const [isInvalidLink, setIsInvalidLink] = useState<boolean>(false);
   const [hasLitResponseDiya, setHasLitResponseDiya] = useState<boolean>(false);
+  const [hasSentBlessing, setHasSentBlessing] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
   const [copyFailed, setCopyFailed] = useState<boolean>(false);
 
   useEffect(() => {
-    if (boxParam !== null && boxParam !== "") {
+    if (lanternParam !== null && lanternParam !== "") {
+      const decodedLantern = decodeLanternData(lanternParam);
+      if (decodedLantern) {
+        setLantern(decodedLantern);
+        setMithaiBox(null);
+        setGreeting(null);
+        setIsInvalidLink(false);
+      } else {
+        setIsInvalidLink(true);
+        setLantern(null);
+      }
+    } else if (boxParam !== null && boxParam !== "") {
       const decodedBox = decodeMithaiBoxData(boxParam);
       if (decodedBox) {
         setMithaiBox(decodedBox);
         setGreeting(null);
+        setLantern(null);
         setIsInvalidLink(false);
       } else {
         setIsInvalidLink(true);
@@ -49,6 +72,7 @@ function ShareViewerContent() {
       if (decoded) {
         setGreeting(decoded);
         setMithaiBox(null);
+        setLantern(null);
         setIsInvalidLink(false);
       } else {
         // Link parameter is present but invalid/corrupted
@@ -60,8 +84,9 @@ function ShareViewerContent() {
       setIsInvalidLink(false);
       setGreeting(null);
       setMithaiBox(null);
+      setLantern(null);
     }
-  }, [dataParam, boxParam]);
+  }, [dataParam, boxParam, lanternParam]);
 
   const activeGreeting: ShareableGreetingData = greeting || {
     recipient: "Dear Friend",
@@ -90,6 +115,39 @@ function ShareViewerContent() {
       // Ignore
     }
   };
+
+  const handleSendBlessing = () => {
+    setHasSentBlessing(true);
+    audioSynth.playLanternShimmer();
+    try {
+      confetti({
+        particleCount: 65,
+        spread: 75,
+        origin: { y: 0.6 },
+        colors: ["#FFB547", "#FFE27B", "#D4AF37", "#FF8C00", "#FFF6E5"],
+      });
+    } catch {
+      // Ignore
+    }
+  };
+
+  const handleShareWhatsApp = () => {
+    if (typeof window === "undefined") return;
+    if (lantern) {
+      const text = `Namaste! 🏮✨ ${lantern.name} lit a glowing Diwali Sky Lantern with a heartfelt wish into the night sky:\n\n"${lantern.wish}"\n\nWatch this celestial sky lantern float into the starlit heavens here: ${window.location.href}`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, "_blank");
+    } else if (mithaiBox) {
+      const text = `Namaste ${mithaiBox.recipient || "Dear"}! 🎁✨ Here is your Royal Diwali Mithai Box curated with love: ${window.location.href}`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, "_blank");
+    } else {
+      const text = `Namaste! 🪔✨ May this Deepavali bring boundless light and prosperity: ${window.location.href}`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, "_blank");
+    }
+  };
+
+  const lanternColorConfig = lantern
+    ? LANTERN_COLORS.find((c) => c.id === lantern.color) || LANTERN_COLORS[0]
+    : LANTERN_COLORS[0];
 
   const handleCopyLink = async () => {
     if (typeof window === "undefined") return;
@@ -165,7 +223,7 @@ function ShareViewerContent() {
           ) : (
             <>
               <Copy className="w-3.5 h-3.5" />
-              <span>Copy Card Link</span>
+              <span>{lantern ? "Copy Lantern Link" : mithaiBox ? "Copy Box Link" : "Copy Card Link"}</span>
             </>
           )}
         </button>
@@ -207,6 +265,163 @@ function ShareViewerContent() {
               >
                 View Sample Card
               </button>
+            </div>
+          </div>
+        ) : lantern ? (
+          /* SKY LANTERN CELESTIAL CEREMONY FOR RECIPIENT */
+          <div className="w-full max-w-xl flex flex-col items-center my-auto animate-fade-in text-center">
+            {/* Header pill */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-diwali-purple/40 border border-diwali-gold/40 text-xs font-semibold text-diwali-goldLight mb-5 shadow-md">
+              <Sparkles className="w-3.5 h-3.5 text-diwali-amber animate-pulse" />
+              <span>Celestial Akash Kandil • Sky Lantern</span>
+            </div>
+
+            <h1 className="text-3xl sm:text-4xl font-serif font-black tracking-tight text-diwali-ivory mb-2">
+              A Sky Lantern Lit by <span className="text-transparent bg-clip-text bg-gradient-to-r from-diwali-goldLight via-diwali-gold to-diwali-amber">{lantern.name}</span>
+            </h1>
+
+            <p className="text-xs sm:text-sm text-diwali-lavender mb-6 max-w-md">
+              Ascending gracefully into the starry night, carrying sacred festive intentions and blessings across the cosmos.
+            </p>
+
+            {/* Celestial Floating Lantern Display */}
+            <div className="relative w-full py-6 flex flex-col items-center justify-center">
+              {/* Starry halo & glow */}
+              <div
+                className="absolute w-72 h-72 rounded-full blur-3xl opacity-60 animate-pulse pointer-events-none"
+                style={{ backgroundColor: lanternColorConfig.glow }}
+              />
+
+              {/* Gently floating & hovering lantern */}
+              <div className="relative flex flex-col items-center animate-float-slow">
+                <svg viewBox="0 0 100 140" className="w-40 h-56 drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)]">
+                  {/* Paper cylinder */}
+                  <path
+                    d="M20,20 Q50,15 80,20 L88,110 Q50,120 12,110 Z"
+                    fill={lanternColorConfig.hex}
+                    opacity="0.9"
+                    stroke="#FFE27B"
+                    strokeWidth="1.5"
+                  />
+                  {/* Interior Radiant Flame */}
+                  <circle cx="50" cy="95" r="11" fill="#FFF6E5" className="animate-pulse" />
+                  <path
+                    d="M50,70 Q58,88 50,105 Q42,88 50,70"
+                    fill="#FF8C00"
+                    className="animate-flame-flicker"
+                  />
+                  {/* Base ring */}
+                  <ellipse cx="50" cy="115" rx="38" ry="6" fill="#782E0E" stroke="#D4AF37" strokeWidth="1.2" />
+                </svg>
+
+                {/* Wish excerpt inscribed on the lantern surface */}
+                <div className="absolute top-[68px] left-[26px] right-[26px] text-center overflow-hidden" style={{ maxHeight: "64px" }}>
+                  <p className="text-[9px] font-serif font-bold text-diwali-navy leading-snug opacity-95 line-clamp-4 break-words hyphens-auto">
+                    {lantern.wish}
+                  </p>
+                </div>
+              </div>
+
+              {/* Status pill under lantern */}
+              <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-diwali-midnight/90 border border-diwali-gold/30 text-[11px] text-diwali-goldLight shadow-md">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Floating High in the Heavens</span>
+              </div>
+            </div>
+
+            {/* Sacred Illuminated Wish Card */}
+            <div className="w-full mt-2 p-6 sm:p-7 rounded-3xl bg-gradient-to-b from-diwali-surface/90 via-diwali-midnight/95 to-diwali-navy border border-diwali-gold/40 shadow-2xl text-left relative overflow-hidden backdrop-blur-md">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-diwali-gold/20">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🏮</span>
+                  <div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-diwali-lavender/80 block">
+                      Sacred Festive Wish
+                    </span>
+                    <span className="font-bold text-xs sm:text-sm text-diwali-goldLight">
+                      Lit by {lantern.name}
+                    </span>
+                  </div>
+                </div>
+
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider border border-diwali-gold/30 bg-diwali-gold/10 text-diwali-goldLight">
+                  {lantern.color} Lantern
+                </span>
+              </div>
+
+              <blockquote className="text-sm sm:text-base text-diwali-ivory font-serif italic leading-relaxed my-2 pl-4 border-l-2 border-diwali-gold/60">
+                &ldquo;{lantern.wish}&rdquo;
+              </blockquote>
+
+              <div className="pt-4 mt-4 border-t border-diwali-gold/15 flex items-center justify-between text-xs text-diwali-lavender">
+                <span>Diwali Festival of Lights 2026</span>
+                <span className="text-[11px] text-diwali-lavender/70">Akash Kandil Tradition</span>
+              </div>
+            </div>
+
+            {/* Interactive Response: Send a Blessing & Release Your Own */}
+            <div className="w-full mt-6 space-y-3">
+              {/* Send Blessing Box */}
+              <div className="p-4 rounded-2xl bg-diwali-surface/60 border border-diwali-gold/25 backdrop-blur-sm">
+                {!hasSentBlessing ? (
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+                    <div>
+                      <span className="font-bold text-diwali-goldLight text-xs block">Touched by this intention?</span>
+                      <span className="text-diwali-lavender text-[11px]">Send an auspicious blessing back to {lantern.name}.</span>
+                    </div>
+                    <button
+                      onClick={handleSendBlessing}
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-diwali-gold via-diwali-amber to-diwali-gold text-diwali-navy font-bold text-xs shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                    >
+                      <Heart className="w-4 h-4 text-diwali-crimson fill-current" />
+                      <span>Send Blessing</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2 text-xs font-semibold text-emerald-300 py-1">
+                    <Sparkles className="w-4 h-4 text-diwali-amber" />
+                    <span>Your divine blessing was sent to {lantern.name}! May your light shine ever brighter.</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Release Your Own Sky Lantern CTA */}
+              <Link
+                href="/#sky-lanterns"
+                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-diwali-gold via-diwali-amber to-diwali-gold text-diwali-navy font-bold text-sm shadow-[0_0_25px_rgba(212,175,55,0.4)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+              >
+                <Flame className="w-4 h-4 text-diwali-crimson fill-current" />
+                <span>Release a Sky Lantern of Your Own</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+
+              {/* Social share options for recipient */}
+              <div className="grid grid-cols-2 gap-2.5 pt-1">
+                <button
+                  onClick={handleShareWhatsApp}
+                  className="py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-md"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Share via WhatsApp</span>
+                </button>
+
+                <button
+                  onClick={handleCopyLink}
+                  className="py-2.5 rounded-xl bg-diwali-surface hover:bg-diwali-surfaceLight border border-diwali-gold/30 text-diwali-goldLight hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-emerald-300">Link Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copy Lantern Link</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         ) : mithaiBox ? (
