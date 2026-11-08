@@ -26,6 +26,15 @@ export const metadata: Metadata = {
     "Diwali celebration",
     "Indian festival of lights",
   ],
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon.svg",
+    apple: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+  },
   authors: [{ name: "Sagnik Dutta", url: "https://www.linkedin.com/in/sagnikduttahere/" }],
   creator: "Sagnik Dutta",
   publisher: "Sagnik Dutta",
